@@ -4,6 +4,7 @@
 #include "bitmaps.h"
 #include "gameview.h"
 #include "gamedata.h"
+#include "ai.h"
 #include "gametetrominos.h"
 #include "game.h"
 #include "controls.h"

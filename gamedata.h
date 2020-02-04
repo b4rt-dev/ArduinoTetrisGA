@@ -5,6 +5,7 @@
 #include "gametetrominos.h"
 #include "controls.h"
 #include "gameview.h"
+#include "ai.h"
 
 #define ROWS_VISIBLE 20
 #define ROWS 22
@@ -17,7 +18,7 @@ long highscore = 0;
 int lines = 0;
 int level = 0;
 int rotationCount = 0;  // number of rotations for current piece
-boolean boardMap[ROWS][COLS] = {{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}}; // row 0/0 == bottom left(row 0 bottom / top visible 19)
+boolean boardMap[ROWS][COLS]; // row 0/0 == bottom left(row 0 bottom / top visible 19)
 
 const uint8_t fallSpeedPerLevel[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
 const uint8_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
@@ -302,24 +303,12 @@ void tetLand() {
 
 void updateTetromino() {
   
-  //debug print:
-/*
-  for (int x = 0; x < ROWS; ++x) {
-    for (int y = 0; y < COLS; ++y) {
-        Serial.print(boardMap[x][y]);
-    }
-    Serial.println();
-  }
-  Serial.println();
-*/
-
-  // Move Left
+    // Move Left
   if (buttonPressed(BTN_LEFT)) 
   {
     tetMoveLeft();
   }
   
-
   // Move Right
   if (buttonPressed(BTN_RIGHT)) 
   {
@@ -429,6 +418,24 @@ void updateGame() {
 
   
   if (tetCurrent != T_NONE && !endFillAnimation) {
+
+    //TODO do AI movement
+    /*
+    Serial.println(tetRow);
+    Serial.println(tetCol);
+    switch(tetCurrent) 
+    {
+      case T_I: Serial.println("I"); break;
+      case T_J: Serial.println("J"); break;
+      case T_L: Serial.println("L"); break;
+      case T_O: Serial.println("O"); break;
+      case T_S: Serial.println("S"); break;
+      case T_T: Serial.println("T"); break;
+      case T_Z: Serial.println("Z"); break;
+      default: Serial.println("None"); break;
+    }
+    Serial.println();*/
+
     updateTetromino();
     if (tetCurrent == T_NONE && haveRowsToRemove()) {
       removeRowsAnimation = true;
@@ -463,11 +470,26 @@ void updateGame() {
 
   } else {
     setButton(0, true); //tmp debug test
+
+    //debug print boardMap
+    for (int x = ROWS-1; x >= 0; x--) {
+      for (int y = 0; y < COLS; y++) {
+          Serial.print(boardMap[x][y]);
+      }
+      Serial.println();
+    }
+    Serial.println();
+
     rotationCount = 0;
     nextTetromino();
     if (tetColliding(tetRow, tetCol, tetRotation)) {
       endFillAnimation = true;
       actionFrameCount = 0;
+    }
+    else
+    {
+      //TODO Calculate position for next piece
+      calculateNextPlacement();
     }
   }
   
