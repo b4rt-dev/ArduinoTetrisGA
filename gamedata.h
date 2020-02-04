@@ -9,23 +9,21 @@
 #define ROWS_VISIBLE 20
 #define ROWS 22
 #define COLS 10
+#define MAX_ROTATIONS 50  // to prevent player for delaying indefinitly by spinning
 
 int EEPROMaddress = 0;
 long score = 0;
 long highscore = 0;
 int lines = 0;
 int level = 0;
+int rotationCount = 0;  // number of rotations for current piece
 boolean boardMap[ROWS][COLS] = {{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}}; // row 0/0 == bottom left(row 0 bottom / top visible 19)
 
-const uint8_t fallSpeedPerLevel[] = { 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
+const uint8_t fallSpeedPerLevel[] = { 0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
 const uint8_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
 uint8_t actionFrameCount = 0;
 boolean fallFast = false;
 boolean fallFastEnabled = true;
-
-int8_t sideMovementFrameCount = 0;
-const int8_t sideMovementFrameStart = -2;
-const int8_t sideMovementFrameInterval = 2;
 
 boolean boardRowsToRemove[ROWS] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 const int8_t boardRowsRemoveInterval = 10;
@@ -58,44 +56,6 @@ Tetromino bag[] = {T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z };
 ////////////////////////////////////
 // SCORE
 ////////////////////////////////////
-
-void EEPROMWritelong(int address, long value) {
-  //Decomposition from a long to 4 bytes by using bitshift.
-  //One = Most significant -> Four = Least significant byte
-  byte four = (value & 0xFF);
-  byte three = ((value >> 8) & 0xFF);
-  byte two = ((value >> 16) & 0xFF);
-  byte one = ((value >> 24) & 0xFF);
-  //Write the 4 bytes into the eeprom memory.
-  EEPROM.write(address, four);
-  EEPROM.write(address + 1, three);
-  EEPROM.write(address + 2, two);
-  EEPROM.write(address + 3, one);
-}
-      
-long EEPROMReadlong(int address) {
-  //Read the 4 bytes from the eeprom memory.
-  long four = EEPROM.read(address);
-  long three = EEPROM.read(address + 1);
-  long two = EEPROM.read(address + 2);
-  long one = EEPROM.read(address + 3);
-  
-  //Return the recomposed long by using bitshift.
-  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
-}
-
-void saveHighscore() {
-  EEPROMWritelong(EEPROMaddress, highscore);
-}
-
-
-void loadHighscore() {
-  highscore = EEPROMReadlong(EEPROMaddress);
-  if (highscore < 0) {
-    highscore = 0;
-    saveHighscore();
-  }
-}
 
 void scoreAddDropPoints() {
   score += 1;
@@ -341,10 +301,20 @@ void tetLand() {
 
 void updateTetromino() {
   
+  //debug print:
+/*
+  for (int x = 0; x < ROWS; ++x) {
+    for (int y = 0; y < COLS; ++y) {
+        Serial.print(boardMap[x][y]);
+    }
+    Serial.println();
+  }
+  Serial.println();
+*/
+
   // Move Left
   if (buttonPressed(BTN_LEFT)) 
   {
-    sideMovementFrameCount = sideMovementFrameStart;
     tetMoveLeft();
   }
   
@@ -352,7 +322,6 @@ void updateTetromino() {
   // Move Right
   if (buttonPressed(BTN_RIGHT)) 
   {
-    sideMovementFrameCount = sideMovementFrameStart;
     tetMoveRight();
   }
   
@@ -380,11 +349,24 @@ void updateTetromino() {
   }
 
   // Rotate
-  if (buttonPressed(BTN_A)) {
-    if (tetRotateRight()) {
+  if (buttonPressed(BTN_A)) 
+  {
+    if (rotationCount < MAX_ROTATIONS)
+    {
+      if (tetRotateRight()) 
+      {
+        rotationCount++;
+      }
     }
-  } else if (buttonPressed(BTN_B)) {
-    if (tetRotateLeft()) {
+  } 
+  else if (buttonPressed(BTN_B)) 
+  {
+    if (rotationCount < MAX_ROTATIONS)
+    {
+      if (tetRotateLeft()) 
+      {
+        rotationCount++;
+      }
     }
   }
 }
@@ -432,6 +414,7 @@ void setNewGameData() { // random_shuffle(&a[0], &a[10]);
   lines = 0;
   level = 0;
   bagNextIndex = 0;
+  rotationCount = 0;
   actionFrameCount = 0;
   endFillAnimation = false;
   removeRowsAnimation = false;
@@ -475,12 +458,12 @@ void updateGame() {
       gameEnded = true;
       if (score > highscore) {
         highscore = score;
-        saveHighscore();
       }
     }
 
   } else {
-
+    setButton(0, true); //tmp debug test
+    rotationCount = 0;
     nextTetromino();
     if (tetColliding(tetRow, tetCol, tetRotation)) {
       endFillAnimation = true;

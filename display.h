@@ -1,44 +1,25 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <SPI.h>
+#include <Wire.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_PCD8544.h>
+#include <Adafruit_SH1106.h>
 
-// Software SPI (slower updates, more flexible pin options):
-// pin 7 - Serial clock out (SCLK)
-// pin 6 - Serial data out (DIN)
-// pin 5 - Data/Command select (D/C)
-// pin 4 - LCD chip select (CS)
-// pin 3 - LCD reset (RST)
-//Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
+// The SH1106 library is from https://github.com/nhatuan84/esp32-sh1106-oled
+// It is the modified Adafruit library for SH1106 and works perfectly on the TTGO-Eight
+// The resolution is 128x64.
 
-// Hardware SPI (faster, but must use certain hardware pins):
-// SCK is LCD serial clock (SCLK) - this is pin 13 on Arduino Uno
-// MOSI is LCD DIN - this is pin 11 on an Arduino Uno
-// pin 5 - Data/Command select (D/C)
-// pin 4 - LCD chip select (CS/CE)
-// pin 3 - LCD reset (RST)
- Adafruit_PCD8544 display = Adafruit_PCD8544(5, 4, 3);
-// Note with hardware SPI MISO and SS pins aren't used but will still be read
-// and written to during SPI transfer.  Be careful sharing these pins!
+#define OLED_SDA 21
+#define OLED_SCL 22
 
- /*
-1 RST--------- reset 
-2 CE------------chip selection 
-3 DC-----------data/commands choice 
-4 DIN-----------serial data line 
-5 CLK------------serial Clock Speed 
-6 3.3V------------VCC 
-7 LIGHT--------- backlight control terminal 
-8 GND-----------power negative
-*/
+Adafruit_SH1106 display(OLED_SDA, OLED_SCL);
+
 
 void setupDisplay() {
-  display.begin();
-  display.setContrast(64);
-  display.setRotation(3);
-  display.clearDisplay();
+    display.begin(SH1106_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
+    display.setRotation(1);
+    display.clearDisplay();
+    Wire.setClock(400000); // set I2C speed to 400KHz (max for SH1106 display) to increase FPS
 }
 
 

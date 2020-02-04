@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-const unsigned long FPS = 20;
+const unsigned long FPS = 30;
 #define GAME_WIDTH 48
 #define GAME_HEIGHT 84
 

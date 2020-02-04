@@ -32,6 +32,9 @@ void setupControls() {
   }
 }
 
+
+/*
+//old version for when buttons were used
 void updateControlsManual() {
   for (uint8_t thisButton = 0; thisButton < BTN_COUNT; thisButton++) {
         if (digitalRead(btnPins[thisButton]) == LOW) {
@@ -45,24 +48,15 @@ void updateControlsManual() {
                 btnStates[thisButton] = 0xFF; //button just released
         }
     }
-}
+}*/
 
 //Placeholder until AI controlls input
 void updateControls() {
     for (uint8_t thisButton = 0; thisButton < BTN_COUNT; thisButton++) {
-        //Serial.println(thisButton, btnPressed[thisButton]);
         if (btnPressed[thisButton] != 0) {
             btnStates[thisButton] = 1;
         } else {
             btnStates[thisButton] = 0;
-            /*
-            if (btnStates[thisButton] == 0)
-                continue;
-            if (btnStates[thisButton] == 0xFF)//if previously released
-                btnStates[thisButton] = 0; //set to idle
-            else
-                btnStates[thisButton] = 0xFF; //button just released
-            */
         }
     }
 }

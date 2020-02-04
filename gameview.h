@@ -32,7 +32,7 @@ void drawGameTetromino() {
           minoRow = tetRow + r;
           minoCol = tetCol + c;
           if (minoRow < ROWS_VISIBLE) {
-            display.fillRect(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, minoSize, minoSize, BLACK);
+            display.fillRect(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, minoSize, minoSize, WHITE);
             //display.drawBitmap(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, MINO, minoSize, minoSize, 1);
           }
         }
@@ -41,23 +41,13 @@ void drawGameTetromino() {
   }
 }
 
-void printMatrix(int** val, int row, int col) {
-    int new_val[row][col];
-    int i, j;
-    for(i = 0; i < row; i++) {
-        for(j = 0; j < col; j++) {
-            new_val[i][j] = val[i][j];
-            Serial.println(new_val[i][j]);
-        }
-    }
-}
 
 void drawGameMinos() {
   for (uint8_t row=0; row < ROWS_VISIBLE; row++){
     if (!dontDrawFilledRows || (dontDrawFilledRows && !boardRowsToRemove[row])) {
       for (uint8_t col=0; col < COLS; col++){
           if (boardMap[row][col] == true) {
-            display.fillRect(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, minoSize, minoSize, BLACK);
+            display.fillRect(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, minoSize, minoSize, WHITE);
             //display.drawBitmap(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, MINO, minoSize, minoSize, 1);
           }
 //          else {

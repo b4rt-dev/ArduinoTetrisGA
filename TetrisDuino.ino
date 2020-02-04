@@ -3,11 +3,11 @@
 #define byte uint8_t
  
 
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
 #include "globals.h"
 #include "display.h"
 #include "bitmaps.h"
-#include "home.h"
+//#include "home.h"
 #include "gameview.h"
 #include "gamedata.h"
 #include "gametetrominos.h"
@@ -16,8 +16,8 @@
 
 typedef void (*FunctionPointer) ();
 const FunctionPointer PROGMEM mainGameLoop[] = {
-  stateHome,
-  stateHome,
+  stateGameOver,
+  stateGameOver,
   stateGameStart,
   stateGamePlaying,
   stateGamePause,
@@ -32,42 +32,33 @@ void setup() {
   Serial.begin(115200);
 
   delay(10);
-  randomSeed(analogRead(45)); //3
+  randomSeed(analogRead(0));
   
   setupDisplay();
   setupControls();
-  loadHighscore();
   
 }
 
 void loop() {
+  
   if (nextFrame()) {
     updateControls();
-    ((FunctionPointer) pgm_read_word (&mainGameLoop[gameState]))();
-    // audio
+    switch(gameState) {
+      case 0: stateGameOver(); break;
+      case 1: stateGameOver(); break;
+      case 2: stateGameStart(); break;
+      case 3: stateGamePlaying(); break;
+      case 4: stateGamePause(); break;
+      case 5: stateGameOver(); break;
+      default: break;
+    }
+    //((FunctionPointer) pgm_read_word (&mainGameLoop[gameState]))();
     display.display();
     display.clearDisplay();
-    //fpsAndRamAtInterval(5);
   }
 }
 
+// Just draw as fast as possible (I2C is bottleneck here)
 boolean nextFrame() {
-  unsigned long now = millis();
-  if (now < nextFrameStart) {
-    return false;
-  }
-  nextFrameStart = millis() + eachFrameMillis;
-  return true;  
+  return true;
 }
-
-uint16_t getFreeRam() {
-  //from http://www.controllerprojects.com/2011/05/23/determining-sram-usage-on-arduino/
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
-
-static inline void fpsAndRamAtInterval(const int seconds){
-
-}
-

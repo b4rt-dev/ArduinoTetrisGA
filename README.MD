@@ -7,4 +7,4 @@ A genetic algorithm is used, since it works pretty well with Tetris, and because
 Work in progress.
 Eventually will have a second display (small oled thingy from AE) and some buttons to show the status of the GA.
 
-Project is to kill time until the PCB and components for the FPGC4 have arrived from China (which may take some time with the current circumstatnces)
+Project is to kill time until the PCB and components for the FPGC4 have arrived from China (which may take some time with the current circumstances)
