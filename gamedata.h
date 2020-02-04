@@ -19,7 +19,7 @@ int level = 0;
 int rotationCount = 0;  // number of rotations for current piece
 boolean boardMap[ROWS][COLS] = {{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}}; // row 0/0 == bottom left(row 0 bottom / top visible 19)
 
-const uint8_t fallSpeedPerLevel[] = { 0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
+const uint8_t fallSpeedPerLevel[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
 const uint8_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
 uint8_t actionFrameCount = 0;
 boolean fallFast = false;
@@ -83,11 +83,6 @@ void clearBoard() {
         boardMap[row][col] = false;
     }
   }
-//  for (uint8_t col=0; col < COLS; col++){
-//      if (col < 4 || col > 5) {
-//          boardMap[0][col] = true;
-//      }
-//    }
 }
 
 boolean haveRowsToRemove() {
@@ -182,14 +177,20 @@ void nextTetromino() {
 // MOVE/ROTATE/LAND TETROMINO
 ////////////////////////////////////
 
-//TODO fix bug when at bottom line
 bool tetColliding(int8_t tr, int8_t tc, uint8_t ttr) { // row/col/rotation
   for (r=0; r<tetRows; r++) {
       for (c=0; c<tetCols; c++) {
         if (tetData[c + tetCols * r + tetDataSize * ttr]) {
           mr = tr + r; // mino row
           mc = tc + c; // mino col
-          if (boardMap[mr][mc] || mr < 0 || mc < 0 || mc >= COLS) {
+
+          // check this BEFORE using these values as index for boardMap
+          if (mr < 0 || mc < 0)
+          {
+            return true;
+          }
+          if (boardMap[mr][mc] || mc >= COLS) 
+          {
             return true;
           }
         }
@@ -326,7 +327,6 @@ void updateTetromino() {
   }
   
   // Move Down
-  //fallFast = (fallFastEnabled && !buttonRepeat(BTN_LEFT, 0) && !buttonRepeat(BTN_RIGHT, 0)) ? buttonRepeat(BTN_DOWN, 0) : false;
   fallFast = false;
   if (!tetCanMoveDown()) {
     actionFrameCount++;

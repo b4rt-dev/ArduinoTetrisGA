@@ -1,8 +1,6 @@
 #ifndef GAMEVIEW_H
 #define GAMEVIEW_H
 
-// https://github.com/olikraus/u8g2/wiki ?
-
 #include "globals.h"
 #include "display.h"
 #include "bitmaps.h"
@@ -10,31 +8,35 @@
 
 #define MINO_SIZE 5
 #define SCORE_X 28 
-#define SCORE_Y 3
+#define SCORE_Y 2
 #define LINES_X 28
 #define LINES_Y 9
 #define LEVEL_X 28
-#define LEVEL_Y 15
+#define LEVEL_Y 16
 #define NEXT_X 48
 #define NEXT_Y 6
 #define BOARD_X 7
 #define BOARD_Y 128 -3 -MINO_SIZE
 
-
 int minoSize = MINO_SIZE;
 int minoRow = 0;
 int minoCol = 0;
 
-void drawGameTetromino() {
-  if (tetCurrent != T_NONE) {
-    for (r=0; r<tetRows; r++) {
-      for ( c=0; c<tetCols; c++) {
-        if (tetData[c + tetCols * r + tetDataSize * tetRotation]) {
+void drawGameTetromino() 
+{
+  if (tetCurrent != T_NONE) 
+  {
+    for (r=0; r<tetRows; r++) 
+    {
+      for ( c=0; c<tetCols; c++) 
+      {
+        if (tetData[c + tetCols * r + tetDataSize * tetRotation]) 
+        {
           minoRow = tetRow + r;
           minoCol = tetCol + c;
-          if (minoRow < ROWS_VISIBLE) {
-            display.fillRect(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, minoSize, minoSize, WHITE);
-            //display.drawBitmap(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, MINO, minoSize, minoSize, 1);
+          if (minoRow < ROWS_VISIBLE) 
+          {
+            display.drawBitmap(BOARD_X + minoCol * minoSize, BOARD_Y - minoRow * minoSize, MINO, minoSize, minoSize, WHITE);
           }
         }
       }
@@ -43,17 +45,18 @@ void drawGameTetromino() {
 }
 
 
-void drawGameMinos() {
-  for (uint8_t row=0; row < ROWS_VISIBLE; row++){
-    if (!dontDrawFilledRows || (dontDrawFilledRows && !boardRowsToRemove[row])) {
-      for (uint8_t col=0; col < COLS; col++){
-          if (boardMap[row][col] == true) {
-            display.fillRect(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, minoSize, minoSize, WHITE);
-            //display.drawBitmap(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, MINO, minoSize, minoSize, 1);
-          }
-//          else {
-//            display.writePixel(BOARD_X + col * minoSize + 1, BOARD_Y - row * minoSize + 1, BLACK);
-//          }
+void drawGameMinos() 
+{
+  for (uint8_t row=0; row < ROWS_VISIBLE; row++)
+  {
+    if (!dontDrawFilledRows || (dontDrawFilledRows && !boardRowsToRemove[row])) 
+    {
+      for (uint8_t col=0; col < COLS; col++)
+      {
+        if (boardMap[row][col] == true)
+        {
+          display.drawBitmap(BOARD_X + col * minoSize, BOARD_Y - row * minoSize, MINO, minoSize, minoSize, WHITE);
+        }
       }
     }
   }
@@ -110,7 +113,7 @@ void drawGameNextTetromino() {
 }
 
 void drawGameBackground() {
-  display.drawBitmap(0, 0, GAME_BG, GAME_WIDTH, GAME_HEIGHT, 1);
+  display.drawBitmap(0, 0, GAME_BG, GAME_WIDTH, GAME_HEIGHT, WHITE);
 }
 
 
@@ -122,20 +125,6 @@ void drawGame() {
   drawGameNextTetromino();
 }
 
-void drawGamePause() {
-  drawGame();
-  display.fillRect(3, 42, 30, 11, WHITE);
-  display.drawBitmap(3, 42, GAME_PAUSE, 30, 11, 1);
-}
 
-void drawGameOver() {
-  drawGameBackground();
-  drawGameScoreLinesAndLevel();
-  drawGameNextTetromino();
-  display.fillRect(2, 20, 32, 62, WHITE);
-  display.drawBitmap(2, 20, GAME_OVER, 32, 62, 1);
-//  display.fillRect(7, 39, 21, 17, WHITE);
-//  display.drawBitmap(7, 39, GAME_OVER, 21, 17, 1);
-}
 
 #endif

@@ -24,16 +24,11 @@ void loop() {
   if (nextFrame()) {
     updateControls();
     switch(gameState) {
-      //TODO remove unwanted gamestates
-      case 0: stateGameOver(); break;
-      case 1: stateGameOver(); break;
-      case 2: stateGameStart(); break;
-      case 3: stateGamePlaying(); break;
-      case 4: stateGamePlaying(); break;
-      case 5: stateGameOver(); break;
+      case STATE_GAME_START:    stateGameStart();   break;
+      case STATE_GAME_PLAYING:  stateGamePlaying(); break;
+      case STATE_GA_UPDATE:     stateGAupdate();    break;
       default: break;
     }
-    //((FunctionPointer) pgm_read_word (&mainGameLoop[gameState]))();
     display.display();
     display.clearDisplay();
   }
