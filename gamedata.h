@@ -182,6 +182,7 @@ void nextTetromino() {
 // MOVE/ROTATE/LAND TETROMINO
 ////////////////////////////////////
 
+//TODO fix bug when at bottom line
 bool tetColliding(int8_t tr, int8_t tc, uint8_t ttr) { // row/col/rotation
   for (r=0; r<tetRows; r++) {
       for (c=0; c<tetCols; c++) {
@@ -196,7 +197,6 @@ bool tetColliding(int8_t tr, int8_t tc, uint8_t ttr) { // row/col/rotation
     }
     return false;
 }
-
 
 bool tetCanMoveLeft() { return !tetColliding(tetRow, tetCol-1, tetRotation); }
 

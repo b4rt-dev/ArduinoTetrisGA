@@ -9,13 +9,6 @@ void stateGameStart() {
   gameState = STATE_GAME_PLAYING;
 }
 
-void stateGamePause() {
-  drawGamePause();
-  if (buttonPressedAny()) {
-    gameState = STATE_GAME_PLAYING;
-  } 
-}
-
 void stateGamePlaying() {
   updateGame();
   drawGame();
@@ -25,12 +18,18 @@ void stateGamePlaying() {
   }
 }
 
+void stateGAupdate() {
+  
+}
+
 void stateGameOver() {
   drawGameOver();
   if (buttonPressedAny()) {
     gameState = STATE_HOME;
   } 
 }
+
+
 
 
 

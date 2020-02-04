@@ -1,11 +1,11 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-const unsigned long FPS = 30;
-#define GAME_WIDTH 48
-#define GAME_HEIGHT 84
+#define GAME_WIDTH 64
+#define GAME_HEIGHT 128
 
 // States
+//TODO remove unwanted states
 #define STATE_SPLASH            0
 #define STATE_HOME              1
 #define STATE_GAME_START        2

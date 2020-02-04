@@ -8,19 +8,20 @@
 #include "bitmaps.h"
 #include "gamedata.h"
 
-#define SCORE_X 23 
-#define SCORE_Y 4
-#define LINES_X 23
-#define LINES_Y 10
-#define LEVEL_X 37
-#define LEVEL_Y 27
-#define NEXT_X 37
-#define NEXT_Y 36
-#define BOARD_X 3 // bottom start pos 3x81
-#define BOARD_Y 81-3 // 21 top / 81 bottom
-#define MINO_SIZE 3
+#define MINO_SIZE 5
+#define SCORE_X 28 
+#define SCORE_Y 3
+#define LINES_X 28
+#define LINES_Y 9
+#define LEVEL_X 28
+#define LEVEL_Y 15
+#define NEXT_X 48
+#define NEXT_Y 6
+#define BOARD_X 7
+#define BOARD_Y 128 -3 -MINO_SIZE
 
-int minoSize = 3;
+
+int minoSize = MINO_SIZE;
 int minoRow = 0;
 int minoCol = 0;
 
