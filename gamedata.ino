@@ -1,59 +1,3 @@
-#ifndef GAMEDATA_H
-#define GAMEDATA_H
-
-#include <EEPROM.h>
-#include "gametetrominos.h"
-#include "controls.h"
-#include "gameview.h"
-#include "ai.h"
-
-#define ROWS_VISIBLE 20
-#define ROWS 22
-#define COLS 10
-#define MAX_ROTATIONS 50  // to prevent player for delaying indefinitly by spinning
-
-int EEPROMaddress = 0;
-long score = 0;
-long highscore = 0;
-int lines = 0;
-int level = 0;
-int rotationCount = 0;  // number of rotations for current piece
-boolean boardMap[ROWS][COLS]; // row 0/0 == bottom left(row 0 bottom / top visible 19)
-
-const uint8_t fallSpeedPerLevel[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; // frame skip before fall 1 block(fast fall is every frame)
-const uint8_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
-uint8_t actionFrameCount = 0;
-boolean fallFast = false;
-boolean fallFastEnabled = true;
-
-boolean boardRowsToRemove[ROWS] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-const int8_t boardRowsRemoveInterval = 10;
-int8_t boardRowsRemoveBlinkFrameCount = 0;
-const int8_t boardRowsRemoveBlinkInterval = 1;
-boolean dontDrawFilledRows = false; // for blink animation blah...
-
-int8_t tetCol = 4; // position
-int8_t tetRow = 17;// position
-int8_t tetRows = 3; // array size
-int8_t tetCols = 3;
-uint8_t tetDataSize = tetRows * tetCols;
-uint8_t tetRotation = 0;
-Tetromino tetCurrent;
-Tetromino tetNext;
-const bool *tetData;
-int8_t r = 0; // za loops
-int8_t c = 0;
-int8_t mr = 0; // mino row
-int8_t mc = 0; // mino col
-
-boolean removeRowsAnimation = false;
-boolean endFillAnimation = false; // game end fill animation
-boolean gameEnded = false;
-
-int bagNextIndex = 8;
-Tetromino bag[] = {T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z };
-
-
 ////////////////////////////////////
 // SCORE
 ////////////////////////////////////
@@ -324,7 +268,7 @@ void updateTetromino() {
         fallFastEnabled = !fallFast;
         actionFrameCount = 0;
     }
-  } else  if (fallFast || actionFrameCount >= fallSpeedPerLevel[min(level, 15)]) {
+  } else  if (fallFast || actionFrameCount >= 0) { // 0 is fallspeed
     if (tetMoveDown()) {
       if (fallFast) {
         tetMoveDown(); // fall faster then one cell per frame
@@ -412,6 +356,7 @@ void setNewGameData() { // random_shuffle(&a[0], &a[10]);
   shuffleBag();
   nextTetromino();
   clearBoard();
+  calculateNextPlacement();
 }
 
 void updateGame() {
@@ -419,7 +364,6 @@ void updateGame() {
   
   if (tetCurrent != T_NONE && !endFillAnimation) {
 
-    //TODO do AI movement
     /*
     Serial.println(tetRow);
     Serial.println(tetCol);
@@ -437,28 +381,36 @@ void updateGame() {
     Serial.println();*/
 
     updateTetromino();
+    doAImovement();
     if (tetCurrent == T_NONE && haveRowsToRemove()) {
+      
       removeRowsAnimation = true;
       actionFrameCount = 0;
       boardRowsRemoveBlinkFrameCount = 0;
       dontDrawFilledRows = false;
+      
+      //uint8_t removedRows = boardRemoveFilledRows();
+      //scoreAddClearRowsPoints(removedRows);
     }
 
-  } else if (removeRowsAnimation) {
+  } else 
+  if (removeRowsAnimation) {
 
      if (updateRemoveRowsAnimationData()) { // ended
       removeRowsAnimation = false;
       uint8_t removedRows = boardRemoveFilledRows();
-      scoreAddClearRowsPoints(removedRows);
-      lines += removedRows;
+      Serial.println(removedRows);
+      //scoreAddClearRowsPoints(removedRows);
+      //lines += removedRows;
       uint8_t newLevel = lines / 10;
-      actionFrameCount = 0;
+      //actionFrameCount = 0;
       if (newLevel != level) {
         level = newLevel;
       }
      }
     
-  } else if (endFillAnimation) {
+  } else 
+  if (endFillAnimation) {
 
     if (updateFillRowsRowsAnimationData()) { // ended
       endFillAnimation = false;
@@ -468,10 +420,12 @@ void updateGame() {
       }
     }
 
-  } else {
-    setButton(0, true); //tmp debug test
+  } else 
+  {
+    //setButton(0, true); //tmp debug test
 
     //debug print boardMap
+    /*
     for (int x = ROWS-1; x >= 0; x--) {
       for (int y = 0; y < COLS; y++) {
           Serial.print(boardMap[x][y]);
@@ -479,6 +433,7 @@ void updateGame() {
       Serial.println();
     }
     Serial.println();
+    */
 
     rotationCount = 0;
     nextTetromino();
@@ -488,11 +443,9 @@ void updateGame() {
     }
     else
     {
-      //TODO Calculate position for next piece
       calculateNextPlacement();
+      //score++;
     }
   }
   
 }
-
-#endif

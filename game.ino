@@ -1,10 +1,3 @@
-#ifndef GAME_H
-#define GAME_H
-
-#include "gameview.h"
-#include "controls.h"
-
-bool evenGameNumber = true;
 
 void stateGameStart() {
   setNewGameData();
@@ -36,6 +29,3 @@ void stateGAupdate() {
   gameState = STATE_GAME_START;
 }
 
-
-
-#endif

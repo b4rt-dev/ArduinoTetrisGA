@@ -1,5 +1,3 @@
-#ifndef GAMETETROMINOS_H
-#define GAMETETROMINOS_H
 
 
 enum Tetromino { T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z,  T_NONE };
@@ -177,5 +175,3 @@ const int8_t wallKickDataI[][5][2] = {
     L->0  ( 0, 0)   (+1, 0)   (-2, 0)   (+1,-2)   (-2,+1)
     0->L  ( 0, 0)   (-1, 0)   (+2, 0)   (-1,+2)   (+2,-1)
  */
- 
-#endif

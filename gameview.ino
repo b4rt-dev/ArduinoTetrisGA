@@ -1,26 +1,4 @@
-#ifndef GAMEVIEW_H
-#define GAMEVIEW_H
 
-#include "globals.h"
-#include "display.h"
-#include "bitmaps.h"
-#include "gamedata.h"
-
-#define MINO_SIZE 5
-#define SCORE_X 28 
-#define SCORE_Y 2
-#define LINES_X 28
-#define LINES_Y 9
-#define LEVEL_X 28
-#define LEVEL_Y 16
-#define NEXT_X 48
-#define NEXT_Y 6
-#define BOARD_X 7
-#define BOARD_Y 128 -3 -MINO_SIZE
-
-int minoSize = MINO_SIZE;
-int minoRow = 0;
-int minoCol = 0;
 
 void drawGameTetromino() 
 {
@@ -85,18 +63,18 @@ void drawNumber(char num[], int numLength, int posX, int poxY) {
 void drawGameScoreLinesAndLevel() {
   // Score to array
   char scoreList[10];
-  sprintf(scoreList, "%ld", score); //ltoa(val, buffer, 10);
-  drawNumber(scoreList, sizeof(scoreList), SCORE_X, SCORE_Y);
+  itoa(score, scoreList, 10);
+  drawNumber(scoreList, 10, SCORE_X, SCORE_Y);
   
   // Lines to array
   char linesList[5];
-  sprintf(linesList, "%d", lines);
-  drawNumber(linesList, sizeof(linesList), LINES_X, LINES_Y);
+  itoa(lines, linesList, 5);
+  drawNumber(linesList, 5, LINES_X, LINES_Y);
   
   // Level to array
-  char leveList[5];
-  sprintf(leveList, "%d", level);
-  drawNumber(leveList, sizeof(leveList), LEVEL_X, LEVEL_Y);
+  char levelList[5];
+  itoa(level, levelList, 5);
+  drawNumber(levelList, 5, LEVEL_X, LEVEL_Y);
 }
 
 void drawGameNextTetromino() {
@@ -125,6 +103,3 @@ void drawGame() {
   drawGameNextTetromino();
 }
 
-
-
-#endif

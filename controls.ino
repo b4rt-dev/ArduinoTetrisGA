@@ -1,16 +1,3 @@
-#ifndef CONTROLS_H
-#define CONTROLS_H
-
-#define BTN_COUNT   5
-#define BTN_LEFT    0
-#define BTN_DOWN    1
-#define BTN_RIGHT   2
-#define BTN_B       3
-#define BTN_A       4
-
-uint8_t btnPins[BTN_COUNT];
-uint8_t btnStates[BTN_COUNT];
-uint8_t btnPressed[BTN_COUNT]; //virtual button pressed states for AI
 
 void setupControls() {
 
@@ -47,5 +34,3 @@ bool buttonPressed(uint8_t button) {
         return false;
     }
 }
-
-#endif
