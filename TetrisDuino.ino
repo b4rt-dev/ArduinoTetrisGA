@@ -1,34 +1,57 @@
+////////////////////////////////////
+// GENERAL INCLUDES
+////////////////////////////////////
 #include <EEPROM.h>
 #include <float.h>
 
+
+////////////////////////////////////
+// CONSTANT DATA
+////////////////////////////////////
 // Add tetrominos definitions
 #include "gametetrominos.h"
 
 // Add bitmap data
 #include "bitmaps.h"
 
-// Display
-// The SH1106 library is from https://github.com/nhatuan84/esp32-sh1106-oled
-// It is the modified Adafruit library for SH1106 and works perfectly on the TTGO-Eight
-// The resolution is 128x64.
+
+////////////////////////////////////
+// DISPLAYS
+////////////////////////////////////
+// the SH1106 library is from https://github.com/nhatuan84/esp32-sh1106-oled
+// it is the modified Adafruit library for SH1106 and works perfectly on the TTGO-Eight
+// the resolution is 128x64.
+// in order to make the library work at the same time as the 5510 library, you have to do
+// two things:
+// - comment out the lines typedef volatile uint8_t PortReg; and typedef uint8_t PortMask;
+//    in Adafruit_SH1106.h
+// - synchronize the definition of BLACK and WHITE in Adafruit_SH1106.h and Adafruit_PCD8544.h
+//    (for example, swap values of BLACK and WHITE in Adafruit_PCD8544.h)
+
+// the Tetris game is displayed on the OLED display (display)
+// the AI/GA info is displayed on the 5510 LCD (infoDisplay)
 #include <Wire.h>
+#include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH1106.h>
+#include <Adafruit_PCD8544.h>
 
 #define OLED_SDA 21
 #define OLED_SCL 22
 
 Adafruit_SH1106 display(OLED_SDA, OLED_SCL);
+Adafruit_PCD8544 infoDisplay = Adafruit_PCD8544(0, 4, 2, 15, 13); // using software SPI
 
 bool evenGameNumber = true; // for inverting the display every other game
-
 
 // Game size on display
 #define GAME_WIDTH 64
 #define GAME_HEIGHT 128
 
 
-// States
+////////////////////////////////////
+// GAME STATES
+////////////////////////////////////
 #define STATE_GAME_START        0
 #define STATE_GAME_PLAYING      1
 #define STATE_GA_UPDATE         2
@@ -36,7 +59,9 @@ bool evenGameNumber = true; // for inverting the display every other game
 byte gameState = STATE_GAME_START; // current state of the game
 
 
-// Buttons
+////////////////////////////////////
+// BUTTONS
+////////////////////////////////////
 #define BTN_COUNT   5
 #define BTN_LEFT    0
 #define BTN_DOWN    1
