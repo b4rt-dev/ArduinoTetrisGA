@@ -35,6 +35,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH1106.h>
 #include <Adafruit_PCD8544.h>
+#include <Fonts/Picopixel.h>
 
 #define OLED_SDA 21
 #define OLED_SCL 22
@@ -62,6 +63,10 @@ byte gameState = STATE_GAME_START; // current state of the game
 ////////////////////////////////////
 // BUTTONS
 ////////////////////////////////////
+#define PIN_WHEEL_DOWN  37
+#define PIN_WHEEL_PRESS 38
+#define PIN_WHEEL_UP    39
+
 #define BTN_COUNT   5
 #define BTN_LEFT    0
 #define BTN_DOWN    1
@@ -158,6 +163,11 @@ int aiTargetRot = 0;
 void setup() { 
   Serial.begin(115200);
 
+  // set scroll wheel buttons as inputs
+  pinMode(PIN_WHEEL_UP, INPUT);
+  pinMode(PIN_WHEEL_PRESS, INPUT);
+  pinMode(PIN_WHEEL_DOWN, INPUT);
+
   delay(10);
   randomSeed(analogRead(0));
   
@@ -178,6 +188,7 @@ void loop() {
     }
     display.display();
     display.clearDisplay();
+    drawInputs();
   }
 }
 

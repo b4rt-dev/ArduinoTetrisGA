@@ -142,6 +142,7 @@ class Adafruit_SH1106 : public Adafruit_GFX {
 
   void clearDisplay(void);
   void invertDisplay(uint8_t i);
+  bool pageDiffers(uint8_t i);
   void display();
 
   void startscrollright(uint8_t start, uint8_t stop);

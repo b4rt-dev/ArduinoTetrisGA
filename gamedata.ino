@@ -396,7 +396,6 @@ void updateGame() {
      if (updateRemoveRowsAnimationData()) { // ended
       removeRowsAnimation = false;
       uint8_t removedRows = boardRemoveFilledRows();
-      Serial.println(removedRows);
       scoreAddClearRowsPoints(removedRows);
       lines += removedRows;
       uint8_t newLevel = lines / 10;
