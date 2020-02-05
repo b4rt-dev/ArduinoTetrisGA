@@ -44,7 +44,6 @@ byte gameState = STATE_GAME_START; // current state of the game
 #define BTN_B       3
 #define BTN_A       4
 
-uint8_t btnPins[BTN_COUNT];
 uint8_t btnStates[BTN_COUNT];
 uint8_t btnPressed[BTN_COUNT]; // virtual button pressed states for AI
 
@@ -55,11 +54,11 @@ uint8_t btnPressed[BTN_COUNT]; // virtual button pressed states for AI
 #define COLS 10
 #define MAX_ROTATIONS 50  // to prevent player for delaying indefinitly by spinning
 
-int EEPROMaddress = 0;
 long score = 0;
 long highscore = 0;
-int lines = 0;
-int level = 0;
+long lines = 0;
+long level = 0;
+
 int rotationCount = 0;  // number of rotations for current piece
 boolean boardMap[ROWS][COLS]; // row 0/0 == bottom left(row 0 bottom / top visible 19)
 
@@ -92,7 +91,7 @@ boolean removeRowsAnimation = false;
 boolean endFillAnimation = false; // game end fill animation
 boolean gameEnded = false;
 
-int bagNextIndex = 8;
+int bagNextIndex = 0;
 Tetromino bag[] = {T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z };
 
 // Game view
@@ -121,7 +120,7 @@ typedef struct {
     int rot;
 } position;
 
-#define POSLIST_SIZE 40
+#define POSLIST_SIZE 60
 position possiblePositions[POSLIST_SIZE] = {};
 
 int aiTargetRow = 0;

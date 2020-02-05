@@ -55,33 +55,42 @@ void generateAllPossiblePlacements()
 
     int posCounter = 0;
 
-    for (int row = -4; row < ROWS + 4; row++) 
+    for (int row = -4; row < ROWS_VISIBLE ; row++) 
     {
         for (int col = -4; col < COLS + 4; col++) 
         {
             for (int rot = 0; rot < 4; rot++) 
             {
-                if (!AIplaceInvalid(boardMap, row, col, rot) && AIplaceInvalid(boardMap, row-1, col, rot))
+                // rotation does not matter for O pieces, but because of some bug,
+                // the third rotation of the O piece results in inaccurate placements
+                // so we fix this by only calculating the first rotation which does not have this bug
+                if (!(tetCurrent == T_O && rot != 0))
                 {
-
-                    // check if place can be reached by just falling from above
-                    boolean rubbleAbove = false;
-                    for (int higherRow = row; higherRow < ROWS-4; higherRow++)
+                    if (posCounter < POSLIST_SIZE)
                     {
-                        if (AIplaceInvalid(boardMap, higherRow, col, rot))
+                        if (!AIplaceInvalid(boardMap, row, col, rot) && AIplaceInvalid(boardMap, row-1, col, rot))
                         {
-                          rubbleAbove = true;
+
+                            // check if place can be reached by just falling from above
+                            boolean rubbleAbove = false;
+                            for (int higherRow = row; higherRow < ROWS-4; higherRow++)
+                            {
+                                if (AIplaceInvalid(boardMap, higherRow, col, rot))
+                                {
+                                  rubbleAbove = true;
+                                }
+                            }
+                            if (!rubbleAbove)
+                            {
+                                // valid placement, so store it in the poslist
+                                possiblePositions[posCounter].row = row;
+                                possiblePositions[posCounter].col = col;
+                                possiblePositions[posCounter].rot = rot;
+                                posCounter++;
+                            }
+
                         }
                     }
-                    if (!rubbleAbove)
-                    {
-                        // valid placement, so store it in the poslist
-                        possiblePositions[posCounter].row = row;
-                        possiblePositions[posCounter].col = col;
-                        possiblePositions[posCounter].rot = rot;
-                        posCounter++;
-                    }
-
                 }
             }
         }
@@ -90,37 +99,7 @@ void generateAllPossiblePlacements()
 
 
 
-/*
-
-bool testMap[ROWS][COLS];
-    //create board with piece
-    memcpy(testMap, boardMap, ROWS*COLS*sizeof(int));
-
- memcpy(testMap, boardMap, ROWS*COLS*sizeof(int));
-                    
-                    AIplaceOnBoard(testMap, row, col, rot);
-
-                    for (int x = ROWS-1; x >= 0; x--) {
-                      for (int y = 0; y < COLS; y++) {
-                          Serial.print(testMap[x][y]);
-                      }
-                      Serial.println();
-                    }
-
-
-*/
-
 int scoreMaxHeight(bool testMap[ROWS][COLS]) {
-
-/*
-    for (int x = ROWS-1; x >= 0; x--) {
-      for (int y = 0; y < COLS; y++) {
-          Serial.print(testMap[x][y]);
-      }
-      Serial.println();
-    }
-*/
-
     int max = 0;
     for (int col = 0; col < COLS; col++) 
     {
@@ -154,7 +133,6 @@ void calculateScores(double scores[POSLIST_SIZE])
         if (possiblePositions[i].row != -99) // if valid position
         {
             // copy of board for calculation purposes
-            
             memcpy(testMap, boardMap, ROWS*COLS*sizeof(bool));
 
             AIplaceOnBoard(testMap, possiblePositions[i].row, possiblePositions[i].col, possiblePositions[i].rot);
@@ -189,32 +167,8 @@ void calculateNextPlacement()
 
     generateAllPossiblePlacements();
 
-/*
-    for (int i = 0; i < POSLIST_SIZE; i++)
-    {
-        // check if position is valid
-        if (possiblePositions[i].row != -99)
-        {
-            Serial.println(possiblePositions[i].col);
-            Serial.println(possiblePositions[i].row);
-            Serial.println(possiblePositions[i].rot);
-            Serial.println();
-        }
-        
-    }
-*/
-
     double scores[POSLIST_SIZE];
     calculateScores(scores);
-
-/*
-    for (int i = 0; i < POSLIST_SIZE; i++)
-    {
-        Serial.println(scores[i]);
-    }
-    Serial.println(scores[selectBestPlacement(scores)]);
-
-*/
 
     //calculate minimum
 
@@ -223,11 +177,6 @@ void calculateNextPlacement()
     aiTargetCol = possiblePositions[bestPosIndex].col;
     aiTargetRot = possiblePositions[bestPosIndex].rot;
 
-/*
-    Serial.println(aiTargetRow);
-    Serial.println(aiTargetCol);
-    Serial.println(aiTargetRot);
-*/
 }
 
 
@@ -243,7 +192,6 @@ void doAImovement()
     // keep track if we changed anything
     bool adjusted = false;
 
-    //TODO add fix for not being able to rotate after hugging the wall
     if (tetCol > aiTargetCol)
     {
         setButton(BTN_LEFT, true);
@@ -254,14 +202,21 @@ void doAImovement()
         setButton(BTN_RIGHT, true);
         adjusted = true;
     }
-    if (tetRotation != aiTargetRot) // TODO check values of rotation to determine A or B press
+    if (tetRotation != aiTargetRot)
     {
-        setButton(BTN_A, true);
+        // check if it is more efficient to rotate counter clockwise
+        if (aiTargetRot == tetRotation -1 || (aiTargetRot == 3 && tetRotation == 0))
+        {
+            setButton(BTN_B, true);
+        }
+        else // else prefer to rotate clockwise
+        {
+            setButton(BTN_A, true); 
+        }
         adjusted = true;
     }
 
     // TODO harddrop if ajusted = false;
-
 
 
 

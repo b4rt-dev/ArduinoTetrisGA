@@ -2,6 +2,7 @@
 
 void drawGameTetromino() 
 {
+  
   if (tetCurrent != T_NONE) 
   {
     for (r=0; r<tetRows; r++) 
@@ -41,6 +42,7 @@ void drawGameMinos()
 }
 
 void drawNumber(char num[], int numLength, int posX, int poxY) {
+  
   int numPosX = posX;
   for(int i=0; i<numLength; i++) {
     if (num[i] == '\0') break;
@@ -61,23 +63,26 @@ void drawNumber(char num[], int numLength, int posX, int poxY) {
 }
 
 void drawGameScoreLinesAndLevel() {
+  
   // Score to array
-  char scoreList[10];
+  char scoreList[17];
   itoa(score, scoreList, 10);
   drawNumber(scoreList, 10, SCORE_X, SCORE_Y);
   
   // Lines to array
-  char linesList[5];
-  itoa(lines, linesList, 5);
+  char linesList[17];
+  itoa(lines, linesList, 10);
   drawNumber(linesList, 5, LINES_X, LINES_Y);
   
   // Level to array
-  char levelList[5];
-  itoa(level, levelList, 5);
+  char levelList[17];
+  itoa(level, levelList, 10);
   drawNumber(levelList, 5, LEVEL_X, LEVEL_Y);
+  
 }
 
 void drawGameNextTetromino() {
+  
   switch(tetNext) {
     case T_I: display.drawBitmap(NEXT_X, NEXT_Y, I, 6, 12, 1, 0); break;
     case T_J: display.drawBitmap(NEXT_X, NEXT_Y, J, 8, 9, 1, 0); break;

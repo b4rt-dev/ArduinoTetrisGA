@@ -388,9 +388,6 @@ void updateGame() {
       actionFrameCount = 0;
       boardRowsRemoveBlinkFrameCount = 0;
       dontDrawFilledRows = false;
-      
-      //uint8_t removedRows = boardRemoveFilledRows();
-      //scoreAddClearRowsPoints(removedRows);
     }
 
   } else 
@@ -400,10 +397,10 @@ void updateGame() {
       removeRowsAnimation = false;
       uint8_t removedRows = boardRemoveFilledRows();
       Serial.println(removedRows);
-      //scoreAddClearRowsPoints(removedRows);
-      //lines += removedRows;
+      scoreAddClearRowsPoints(removedRows);
+      lines += removedRows;
       uint8_t newLevel = lines / 10;
-      //actionFrameCount = 0;
+      actionFrameCount = 0;
       if (newLevel != level) {
         level = newLevel;
       }
@@ -443,8 +440,11 @@ void updateGame() {
     }
     else
     {
-      calculateNextPlacement();
+      //level++;
       //score++;
+      //lines++;
+      calculateNextPlacement();
+      
     }
   }
   
