@@ -1,3 +1,7 @@
+/* TODO
+Change datatypes: sync int, uint8_t and int8_t
+*/
+
 ////////////////////////////////////
 // GENERAL INCLUDES
 ////////////////////////////////////
@@ -27,6 +31,12 @@
 //    in Adafruit_SH1106.h
 // - synchronize the definition of BLACK and WHITE in Adafruit_SH1106.h and Adafruit_PCD8544.h
 //    (for example, swap values of BLACK and WHITE in Adafruit_PCD8544.h)
+//
+// to vastly increase the FPS on the OLED display without going out of spec with the I2C clock speed (400KHz)
+// I modified the library to use a double buffer and only send the page that differs between the two buffers
+// since most of the time only about two of the eight pages differ and need to be sent
+// the I2C clock can easily be overclocked to further increase speed, but the display has still a locked frame rate
+// and therefore looks kinda ugly (and too fast to see what happens) imo, so I did not do that.
 
 // the Tetris game is displayed on the OLED display (display)
 // the AI/GA info is displayed on the 5510 LCD (infoDisplay)
@@ -67,6 +77,13 @@ byte gameState = STATE_GAME_START; // current state of the game
 #define PIN_WHEEL_PRESS 38
 #define PIN_WHEEL_UP    39
 
+// pins for leds
+#define PIN_LEFT    26
+#define PIN_DOWN    32
+#define PIN_RIGHT   27
+#define PIN_B       33
+#define PIN_A       25
+
 #define BTN_COUNT   5
 #define BTN_LEFT    0
 #define BTN_DOWN    1
@@ -74,108 +91,140 @@ byte gameState = STATE_GAME_START; // current state of the game
 #define BTN_B       3
 #define BTN_A       4
 
-uint8_t btnStates[BTN_COUNT];
-uint8_t btnPressed[BTN_COUNT]; // virtual button pressed states for AI
+uint8_t btnStates[BTN_COUNT];       // button states, latched from btnPressed
+uint8_t btnPressed[BTN_COUNT];      // virtual button pressed states for AI
+uint8_t btnPressedPrev[BTN_COUNT];  // previous virtual button pressed states for AI, used for LEDs
 
 
-// Game data
+////////////////////////////////////
+// GAME DATA
+////////////////////////////////////
 #define ROWS_VISIBLE 20
 #define ROWS 22
 #define COLS 10
 #define MAX_ROTATIONS 50  // to prevent player for delaying indefinitly by spinning
+                          //  should not be a problem for the current AI implementation though
 
-long score = 0;
-long highscore = 0;
-long lines = 0;
-long level = 0;
+uint32_t score = 0;       // score of current game
+uint32_t highscore = 0;   // score of game with the highest score (TODO implement this)
+uint32_t lines = 0;       // number of cleared lines of current game
+uint32_t highlines = 0;   // number of cleared lines of the game with the highest number of cleard lines (TODO implement this)
+uint32_t level = 0;       // level of current game
+uint32_t highlevel = 0;   // level of game with the highest level (TODO implement this)
 
-int rotationCount = 0;  // number of rotations for current piece
-boolean boardMap[ROWS][COLS]; // row 0/0 == bottom left(row 0 bottom / top visible 19)
+uint32_t rotationCount = 0;   // number of rotations for current piece
+boolean boardMap[ROWS][COLS]; // representation of game board/map
+                              //  row 0/0 == bottom left(row 0 bottom / top visible 19)
 
-const uint8_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
-uint8_t actionFrameCount = 0;
-boolean fallFast = false;
-boolean fallFastEnabled = true;
+const uint32_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
+uint32_t actionFrameCount = 0;     // used in things that need to count frames
 
-boolean boardRowsToRemove[ROWS] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+// variables for row removal/blinking animation
+boolean boardRowsToRemove[ROWS] = {
+  false, false, false, false, false, false, false, false, false, false, false, 
+  false, false, false, false, false, false, false, false, false, false, false
+  }; // to keep track of full rows to remove
 const int8_t boardRowsRemoveInterval = 10;
 int8_t boardRowsRemoveBlinkFrameCount = 0;
 const int8_t boardRowsRemoveBlinkInterval = 1;
-boolean dontDrawFilledRows = false; // for blink animation blah...
+boolean dontDrawFilledRows = false;
 
-int8_t tetCol = 4; // position
-int8_t tetRow = 17;// position
-int8_t tetRows = 3; // array size
-int8_t tetCols = 3;
-uint8_t tetDataSize = tetRows * tetCols;
-uint8_t tetRotation = 0;
-Tetromino tetCurrent;
-Tetromino tetNext;
-const bool *tetData;
-int8_t r = 0; // za loops
-int8_t c = 0;
-int8_t mr = 0; // mino row
-int8_t mc = 0; // mino col
-
-boolean removeRowsAnimation = false;
-boolean endFillAnimation = false; // game end fill animation
-boolean gameEnded = false;
-
-int bagNextIndex = 0;
+// tetriminos variables (TODO change uint8_t to int8_t)
+int32_t tetCol = 4;        // current column, can be negative
+int32_t tetRow = 17;       // current row, can be negative
+uint32_t tetRotation = 0;  // current rotation
+uint32_t tetRows = 3;       // number of rows in tetrominos
+uint32_t tetCols = 3;       // number of columns in tetrominos
+uint32_t tetDataSize = tetRows * tetCols; // size of tetrominos
+Tetromino tetCurrent;     // current tetrominos piece
+Tetromino tetNext;        // next tetrominos piece
+const bool *tetData;      // pointer to data of current tetrominos
+uint32_t bagNextIndex = 0;
 Tetromino bag[] = {T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z };
 
-// Game view
+// flags
+boolean removeRowsAnimation = false;
+boolean endFillAnimation = false;     // game end fill animation
+boolean gameEnded = false;
+
+
+////////////////////////////////////
+// GAME VIEW
+////////////////////////////////////
 #define MINO_SIZE 5
-#define SCORE_X 28 
-#define SCORE_Y 2
-#define LINES_X 28
-#define LINES_Y 9
-#define LEVEL_X 28
-#define LEVEL_Y 16
-#define NEXT_X 48
-#define NEXT_Y 6
-#define BOARD_X 7
-#define BOARD_Y 128 -3 -MINO_SIZE
-
-int minoSize = MINO_SIZE;
-int minoRow = 0;
-int minoCol = 0;
+#define SCORE_X   28 
+#define SCORE_Y   2
+#define LINES_X   28
+#define LINES_Y   9
+#define LEVEL_X   28
+#define LEVEL_Y   16
+#define NEXT_X    48
+#define NEXT_Y    6
+#define BOARD_X   7
+#define BOARD_Y   128 -3 -MINO_SIZE
 
 
-
+////////////////////////////////////
 // AI
+////////////////////////////////////
 typedef struct {
     int row;
     int col;
     int rot;
-} position;
+} position; // definition of a position
 
-#define POSLIST_SIZE 60
-position possiblePositions[POSLIST_SIZE] = {};
+#define POSLIST_SIZE 60 // maximum size of list of positions
+position possiblePositions[POSLIST_SIZE] = {}; // create list of positions
 
+// calculated targed positions for current tetrominos
 int aiTargetRow = 0;
 int aiTargetCol = 0;
 int aiTargetRot = 0;
 
 
-
-
+////////////////////////////////////
+// SETUP
+////////////////////////////////////
 void setup() { 
-  Serial.begin(115200);
+  Serial.begin(115200); // fast serial
+
+  uint32_t yeet = 0;
+  yeet--;
+  Serial.println(yeet);
+
+  // TODO move pin related code to some file with only pin related code
 
   // set scroll wheel buttons as inputs
   pinMode(PIN_WHEEL_UP, INPUT);
   pinMode(PIN_WHEEL_PRESS, INPUT);
   pinMode(PIN_WHEEL_DOWN, INPUT);
 
+  // set pins to leds as output
+  pinMode(PIN_A, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+  pinMode(PIN_LEFT, OUTPUT);
+  pinMode(PIN_RIGHT, OUTPUT);
+  pinMode(PIN_DOWN, OUTPUT);
+
+  // wait a small bit and set the random seed
   delay(10);
-  randomSeed(analogRead(0));
+  randomSeed(analogRead(12)); //TODO investigate best way to get randomness on ESP32
   
   setupDisplay();
   setupControls();
+
+  digitalWrite(PIN_A, LOW);
+  digitalWrite(PIN_B, LOW);
+  digitalWrite(PIN_LEFT, LOW);
+  digitalWrite(PIN_RIGHT, LOW);
+  digitalWrite(PIN_DOWN, LOW);
   
 }
 
+
+////////////////////////////////////
+// LOOP
+////////////////////////////////////
 void loop() {
   
   if (nextFrame()) {
@@ -186,13 +235,13 @@ void loop() {
       case STATE_GA_UPDATE:     stateGAupdate();    break;
       default: break;
     }
-    display.display();
-    display.clearDisplay();
+    
     drawInputs();
   }
 }
 
 // Just draw as fast as possible for now (I2C is bottleneck here)
+//TODO move function to gameview or somehting
 bool nextFrame() {
   return true;
 }

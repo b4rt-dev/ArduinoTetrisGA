@@ -1,36 +1,36 @@
 void AIplaceOnBoard(bool testMap[ROWS][COLS], int8_t tr, int8_t tc, uint8_t ttr) {
-    int amr = 0;
-    int amc = 0;
-  for (r=0; r<tetRows; r++) {
-     for (c=0; c<tetCols; c++) {
+    int mr = 0;
+    int mc = 0;
+  for (int r=0; r<tetRows; r++) {
+     for (int c=0; c<tetCols; c++) {
        if (tetData[c + tetCols * r + tetDataSize * ttr]) {
-          amr = tr + r; // mino row
-          amc = tc + c; // mino col
-          if (amr >= 0 && amr < ROWS && amc >= 0 && amc < COLS) // sanity check, should not be needed
-            testMap[amr][amc] = true;
+          mr = tr + r; // mino row
+          mc = tc + c; // mino col
+          if (mr >= 0 && mr < ROWS && mc >= 0 && mc < COLS) // sanity check, should not be needed
+            testMap[mr][mc] = true;
        }
      }
    }
 }
 
 bool AIplaceInvalid(bool testMap[ROWS][COLS], int8_t tr, int8_t tc, uint8_t ttr) { // row/col/rotation
-    int amr = 0;
-    int amc = 0;
-    for (r=0; r<tetRows; r++) //tetRows should be correct, since we calculate for current piece
+    int mr = 0;
+    int mc = 0;
+    for (int r=0; r<tetRows; r++) //tetRows should be correct, since we calculate for current piece
     {
-        for (c=0; c<tetCols; c++) //tetColss should be correct, since we calculate for current piece
+        for (int c=0; c<tetCols; c++) //tetColss should be correct, since we calculate for current piece
         {
             if (tetData[c + tetCols * r + tetDataSize * ttr]) 
             {
-                amr = tr + r; // mino row
-                amc = tc + c; // mino col
+                mr = tr + r; // mino row
+                mc = tc + c; // mino col
 
                 // check this BEFORE using these values as index for boardMap
-                if (amr < 0 || amc < 0 || amc >= COLS)
+                if (mr < 0 || mc < 0 || mc >= COLS)
                 {
                     return true;
                 }
-                if (testMap[amr][amc]) 
+                if (testMap[mr][mc]) 
                 {
                     return true;
                 }
@@ -216,7 +216,11 @@ void doAImovement()
         adjusted = true;
     }
 
-    // TODO harddrop if ajusted = false;
+    // do hard drop if no further movements are needed
+    if (!adjusted)
+    {
+        setButton(BTN_DOWN, true);
+    }
 
 
 

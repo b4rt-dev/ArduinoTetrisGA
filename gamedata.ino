@@ -1,7 +1,6 @@
 ////////////////////////////////////
 // SCORE
 ////////////////////////////////////
-
 void scoreAddDropPoints() {
   score += 1;
 }
@@ -17,11 +16,9 @@ void scoreAddClearRowsPoints(uint8_t clearedLines) {
 }
 
 
-
 ////////////////////////////////////
 // BOARD
 ////////////////////////////////////
-
 void clearBoard() {
   for (uint8_t row=0; row < ROWS; row++){
     for (uint8_t col=0; col < COLS; col++){
@@ -33,7 +30,7 @@ void clearBoard() {
 boolean haveRowsToRemove() {
   boolean have = false;
   for (uint8_t row=0; row < ROWS; row++){
-    mc = 0; // mino count
+    int mc = 0; // mino count
     for (uint8_t col=0; col < COLS; col++){
       if (boardMap[row][col]) mc++;
     }
@@ -50,7 +47,7 @@ boolean haveRowsToRemove() {
 uint8_t boardRemoveFilledRows() {
   uint8_t removeRows = 0;
   for (uint8_t row=0; row < ROWS; row++){
-    mc = 0; // mino count
+    int mc = 0; // mino count
     for (uint8_t col=0; col < COLS; col++){
       if (boardMap[row][col]) mc++;
     }
@@ -77,10 +74,11 @@ void boardFillRow(uint8_t fillRow) {
   }
 }
 
+
 ////////////////////////////////////
 // GENERATE TETROMINO
 ////////////////////////////////////
-
+//TODO verify this function
 void shuffleBag() {
   int last = 0;
   Tetromino temp = bag[last];
@@ -123,8 +121,10 @@ void nextTetromino() {
 ////////////////////////////////////
 
 bool tetColliding(int8_t tr, int8_t tc, uint8_t ttr) { // row/col/rotation
-  for (r=0; r<tetRows; r++) {
-      for (c=0; c<tetCols; c++) {
+  int mr = 0;
+  int mc = 0;
+  for (int r=0; r<tetRows; r++) {
+      for (int c=0; c<tetCols; c++) {
         if (tetData[c + tetCols * r + tetDataSize * ttr]) {
           mr = tr + r; // mino row
           mc = tc + c; // mino col
@@ -205,7 +205,7 @@ bool tetRotateRight() {
   if (tetCurrent == T_O) {
     return true;
   } else {
-    uint8_t tetNewRotation = (tetRotation == 3) ? 0 : tetRotation + 1;
+    int tetNewRotation = (tetRotation == 3) ? 0 : tetRotation + 1;
     switch(tetRotation) {
       case 0: return tetRotate(tetNewRotation, 0);  break;
       case 1: return tetRotate(tetNewRotation, 2);  break;
@@ -221,7 +221,7 @@ bool tetRotateLeft() {
   if (tetCurrent == T_O) {
     return true;
   } else {
-    uint8_t tetNewRotation = (tetRotation == 0) ? 3 : tetRotation - 1;
+    int tetNewRotation = (tetRotation == 0) ? 3 : tetRotation - 1;
     switch(tetRotation) {
       case 0: return tetRotate(tetNewRotation, 7);  break;
       case 1: return tetRotate(tetNewRotation, 1);  break;
@@ -233,8 +233,10 @@ bool tetRotateLeft() {
 }
 
 void tetLand() {
-  for (r=0; r<tetRows; r++) {
-     for (c=0; c<tetCols; c++) {
+  int mr = 0;
+  int mc = 0;
+  for (int r=0; r<tetRows; r++) {
+     for (int c=0; c<tetCols; c++) {
        if (tetData[c + tetCols * r + tetDataSize * tetRotation]) {
           mr = tetRow + r; // mino row
           mc = tetCol + c; // mino col
@@ -247,41 +249,46 @@ void tetLand() {
 
 void updateTetromino() {
   
-    // Move Left
+  // move left
   if (buttonPressed(BTN_LEFT)) 
   {
     tetMoveLeft();
   }
   
-  // Move Right
+  // move right
   if (buttonPressed(BTN_RIGHT)) 
   {
     tetMoveRight();
   }
   
-  // Move Down
-  fallFast = false;
-  if (!tetCanMoveDown()) {
-    actionFrameCount++;
-    if (actionFrameCount >= fallLockDelay || fallFast) {
-        tetLand();
-        fallFastEnabled = !fallFast;
-        actionFrameCount = 0;
+  
+  // hard drop
+  if (buttonPressed(BTN_DOWN)) 
+  {
+    // move down until not possible anymore
+    while (tetCanMoveDown())
+    {
+      tetMoveDown();
     }
-  } else  if (fallFast || actionFrameCount >= 0) { // 0 is fallspeed
-    if (tetMoveDown()) {
-      if (fallFast) {
-        tetMoveDown(); // fall faster then one cell per frame
-        scoreAddDropPoints();
-        scoreAddDropPoints();
+    tetLand(); // land the tetrominos after moving all the way down
+  }
+  else // just move down
+  {
+    if (!tetCanMoveDown()) {
+      actionFrameCount++;
+      if (actionFrameCount >= fallLockDelay) {
+          tetLand();
+          actionFrameCount = 0;
       }
-      actionFrameCount = 0;
-    } 
-  } else {
-    actionFrameCount++;
+    } else  if (actionFrameCount >= 0) { // 0 = fallspeed delay
+        tetMoveDown();
+        actionFrameCount = 0;
+    } else {
+      actionFrameCount++;
+    }
   }
 
-  // Rotate
+  // rotate
   if (buttonPressed(BTN_A)) 
   {
     if (rotationCount < MAX_ROTATIONS)
@@ -352,7 +359,6 @@ void setNewGameData() { // random_shuffle(&a[0], &a[10]);
   endFillAnimation = false;
   removeRowsAnimation = false;
   gameEnded = false;
-  fallFastEnabled = true;
   shuffleBag();
   nextTetromino();
   clearBoard();
@@ -363,25 +369,8 @@ void updateGame() {
 
   
   if (tetCurrent != T_NONE && !endFillAnimation) {
-
-    /*
-    Serial.println(tetRow);
-    Serial.println(tetCol);
-    switch(tetCurrent) 
-    {
-      case T_I: Serial.println("I"); break;
-      case T_J: Serial.println("J"); break;
-      case T_L: Serial.println("L"); break;
-      case T_O: Serial.println("O"); break;
-      case T_S: Serial.println("S"); break;
-      case T_T: Serial.println("T"); break;
-      case T_Z: Serial.println("Z"); break;
-      default: Serial.println("None"); break;
-    }
-    Serial.println();*/
-
     updateTetromino();
-    doAImovement();
+    
     if (tetCurrent == T_NONE && haveRowsToRemove()) {
       
       removeRowsAnimation = true;
@@ -418,19 +407,6 @@ void updateGame() {
 
   } else 
   {
-    //setButton(0, true); //tmp debug test
-
-    //debug print boardMap
-    /*
-    for (int x = ROWS-1; x >= 0; x--) {
-      for (int y = 0; y < COLS; y++) {
-          Serial.print(boardMap[x][y]);
-      }
-      Serial.println();
-    }
-    Serial.println();
-    */
-
     rotationCount = 0;
     nextTetromino();
     if (tetColliding(tetRow, tetCol, tetRotation)) {
@@ -439,11 +415,7 @@ void updateGame() {
     }
     else
     {
-      //level++;
-      //score++;
-      //lines++;
-      calculateNextPlacement();
-      
+      calculateNextPlacement(); 
     }
   }
   

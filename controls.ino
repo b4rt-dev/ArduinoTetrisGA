@@ -7,7 +7,6 @@ void setupControls() {
   }
 }
 
-//Placeholder until AI controlls input
 void updateControls() {
     for (uint8_t thisButton = 0; thisButton < BTN_COUNT; thisButton++) {
         if (btnPressed[thisButton] != 0) {

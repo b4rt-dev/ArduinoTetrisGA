@@ -6,10 +6,13 @@ void stateGameStart() {
 
 void stateGamePlaying() {
   updateGame();
+  doAImovement();
   drawGame();
+  drawStats();
+
   if (gameEnded) {
     gameState = STATE_GA_UPDATE;
-
+    
     // invert the screen to reduce burn in
     if (evenGameNumber)
     {
