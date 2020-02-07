@@ -158,8 +158,8 @@ boolean gameEnded = false;
 #define LINES_Y   9
 #define LEVEL_X   28
 #define LEVEL_Y   16
-#define NEXT_X    48
-#define NEXT_Y    6
+#define NEXT_X    52
+#define NEXT_Y    8
 #define BOARD_X   7
 #define BOARD_Y   128 -3 -MINO_SIZE
 
@@ -181,6 +181,7 @@ int aiTargetRow = 0;
 int aiTargetCol = 0;
 int aiTargetRot = 0;
 
+bool doHardDrop = false;
 
 ////////////////////////////////////
 // SETUP
@@ -188,37 +189,12 @@ int aiTargetRot = 0;
 void setup() { 
   Serial.begin(115200); // fast serial
 
-  uint32_t yeet = 0;
-  yeet--;
-  Serial.println(yeet);
-
-  // TODO move pin related code to some file with only pin related code
-
-  // set scroll wheel buttons as inputs
-  pinMode(PIN_WHEEL_UP, INPUT);
-  pinMode(PIN_WHEEL_PRESS, INPUT);
-  pinMode(PIN_WHEEL_DOWN, INPUT);
-
-  // set pins to leds as output
-  pinMode(PIN_A, OUTPUT);
-  pinMode(PIN_B, OUTPUT);
-  pinMode(PIN_LEFT, OUTPUT);
-  pinMode(PIN_RIGHT, OUTPUT);
-  pinMode(PIN_DOWN, OUTPUT);
-
-  // wait a small bit and set the random seed
-  delay(10);
-  randomSeed(analogRead(12)); //TODO investigate best way to get randomness on ESP32
-  
+  delay(100);            // wait a bit
+  setupLEDs();
   setupDisplay();
+  setupScrollWheel();
   setupControls();
-
-  digitalWrite(PIN_A, LOW);
-  digitalWrite(PIN_B, LOW);
-  digitalWrite(PIN_LEFT, LOW);
-  digitalWrite(PIN_RIGHT, LOW);
-  digitalWrite(PIN_DOWN, LOW);
-  
+  shuffleBag(); 
 }
 
 
@@ -235,8 +211,6 @@ void loop() {
       case STATE_GA_UPDATE:     stateGAupdate();    break;
       default: break;
     }
-    
-    drawInputs();
   }
 }
 

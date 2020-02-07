@@ -96,6 +96,19 @@ void drawGameBackground() {
   display.drawBitmap(0, 0, GAME_BG, GAME_WIDTH, GAME_HEIGHT, WHITE);
 }
 
+// invert the screen to reduce burn in
+void invertDisplay()
+{
+  if (evenGameNumber)
+  {
+    display.invertDisplay(1);
+  }
+  else
+  {
+    display.invertDisplay(0);
+  }
+  evenGameNumber = !evenGameNumber;
+}
 
 void drawGame() {
   drawGameBackground();

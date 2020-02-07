@@ -99,7 +99,8 @@ void generateAllPossiblePlacements()
 
 
 
-int scoreMaxHeight(bool testMap[ROWS][COLS]) {
+int scoreMaxHeight(bool testMap[ROWS][COLS]) 
+{
     int max = 0;
     for (int col = 0; col < COLS; col++) 
     {
@@ -108,7 +109,6 @@ int scoreMaxHeight(bool testMap[ROWS][COLS]) {
         {
             if (testMap[row][col]) 
             {
-
                 if (row +1 > highestRow) // +1 because the bottom row is row zero
                 { 
                     highestRow = row +1; 
@@ -118,9 +118,58 @@ int scoreMaxHeight(bool testMap[ROWS][COLS]) {
         if (highestRow > max){
             max = highestRow;
         }
-
     }
     return max;
+}
+
+int scoreLinesCleared(bool testMap[ROWS][COLS]) 
+{
+    int lines = 0;
+    for (int row = 0; row < ROWS; row++)
+    {
+        bool fullLine = true;
+        for (int col = 0; col < COLS; col++) 
+        {
+            if (!testMap[row][col])
+            {
+                fullLine = false;
+            }
+        }
+        if (fullLine)
+        {
+            lines++;
+        }
+    }
+    return lines;
+}
+       
+int scoreHoles(bool testMap[ROWS][COLS])
+{
+    int holes = 0;
+    // calculate holes for each column
+    for (int col = 0; col < COLS; col++) 
+    {
+        int colHoles = 0;
+        bool foundBlock = false;
+        // go from top to bottom
+        for (int row = ROWS-1; row >= 0; row--) 
+        {
+            if (testMap[row][col]) 
+            {
+                foundBlock = true;
+            } 
+            else 
+            {
+                // only count the empty space as hole if there was a block found above
+                if (foundBlock) 
+                {
+                    colHoles++;
+                }
+            }
+        }
+        holes = holes + colHoles;
+    }
+    return holes;
 }
 
 void calculateScores(double scores[POSLIST_SIZE])
@@ -137,7 +186,11 @@ void calculateScores(double scores[POSLIST_SIZE])
 
             AIplaceOnBoard(testMap, possiblePositions[i].row, possiblePositions[i].col, possiblePositions[i].rot);
 
-            scores[i] = -1 * scoreMaxHeight(testMap);
+            scores[i] = 
+            -1 * scoreMaxHeight(testMap) +
+            5 * scoreLinesCleared(testMap) +
+            -1.5 * scoreHoles(testMap)
+            ;
             
         }
     }
@@ -189,39 +242,41 @@ void doAImovement()
     setButton(BTN_B, false);
     setButton(BTN_A, false);
 
-    // keep track if we changed anything
-    bool adjusted = false;
+    // if movement might be needed (to prevent any button being held during line clear animations)
+    if (!(tetCol == aiTargetCol && tetRow == aiTargetRow && tetRotation == aiTargetRot))
+    {
+        // keep track if we changed anything
+        bool adjusted = false;
 
-    if (tetCol > aiTargetCol)
-    {
-        setButton(BTN_LEFT, true);
-        adjusted = true;
-    }
-    if (tetCol < aiTargetCol)
-    {
-        setButton(BTN_RIGHT, true);
-        adjusted = true;
-    }
-    if (tetRotation != aiTargetRot)
-    {
-        // check if it is more efficient to rotate counter clockwise
-        if (aiTargetRot == tetRotation -1 || (aiTargetRot == 3 && tetRotation == 0))
+        if (tetCol > aiTargetCol)
         {
-            setButton(BTN_B, true);
+            setButton(BTN_LEFT, true);
+            adjusted = true;
         }
-        else // else prefer to rotate clockwise
+        if (tetCol < aiTargetCol)
         {
-            setButton(BTN_A, true); 
+            setButton(BTN_RIGHT, true);
+            adjusted = true;
         }
-        adjusted = true;
+        if (tetRotation != aiTargetRot)
+        {
+            // check if it is more efficient to rotate counter clockwise
+            if (aiTargetRot == tetRotation -1 || (aiTargetRot == 3 && tetRotation == 0))
+            {
+                setButton(BTN_B, true);
+            }
+            else // else prefer to rotate clockwise
+            {
+                setButton(BTN_A, true); 
+            }
+            adjusted = true;
+        }
+
+        // do hard drop if no further movements are needed
+        if (!adjusted && doHardDrop)
+        {
+            setButton(BTN_DOWN, true);
+        }
     }
-
-    // do hard drop if no further movements are needed
-    if (!adjusted)
-    {
-        setButton(BTN_DOWN, true);
-    }
-
-
 
 }

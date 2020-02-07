@@ -4,11 +4,39 @@ highscore
 highlines
 highlevel
 
-GA stuff
+config:
+  - enable harddrops
+
+GA stuff:
+  - current weights
+  - generation
+  - population size
+  - etc
 */
 
+void setupScrollWheel()
+{
+  // set scroll wheel buttons as inputs
+  pinMode(PIN_WHEEL_UP, INPUT);
+  pinMode(PIN_WHEEL_PRESS, INPUT);
+  pinMode(PIN_WHEEL_DOWN, INPUT);
+}
 
-
+void setupLEDs()
+{
+  // set pins to LEDs as output
+  pinMode(PIN_A, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+  pinMode(PIN_LEFT, OUTPUT);
+  pinMode(PIN_RIGHT, OUTPUT);
+  pinMode(PIN_DOWN, OUTPUT);
+  // set start by setting the LEDs low
+  digitalWrite(PIN_A, LOW);
+  digitalWrite(PIN_B, LOW);
+  digitalWrite(PIN_LEFT, LOW);
+  digitalWrite(PIN_RIGHT, LOW);
+  digitalWrite(PIN_DOWN, LOW);
+}
 
 
 void drawInputs() 
@@ -73,9 +101,20 @@ void drawInputs()
   memcpy(btnPressedPrev, btnPressed, BTN_COUNT);
 }
 
-
+void checkScrollWheel()
+{
+  if (digitalRead(PIN_WHEEL_PRESS) == LOW)
+  {
+    doHardDrop = false;
+  }
+  else
+  {
+    doHardDrop = true;
+  }
+}
 
 void drawStats()
 {
   drawInputs();
+  checkScrollWheel();
 }

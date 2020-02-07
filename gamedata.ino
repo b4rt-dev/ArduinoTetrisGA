@@ -78,17 +78,30 @@ void boardFillRow(uint8_t fillRow) {
 ////////////////////////////////////
 // GENERATE TETROMINO
 ////////////////////////////////////
-//TODO verify this function
-void shuffleBag() {
-  int last = 0;
-  Tetromino temp = bag[last];
-  for (int i=0; i<7; i++) {
-    int index = random(7);
-    bag[last] = bag[index];
-    last = index;
+void shuffleBag() 
+{
+  for (int x = 0; x < 5; x++) // shuffle five times
+  {
+    Tetromino bagCopy[7];
+    memcpy(&bagCopy, &bag, sizeof(bag));
+    
+    int index = 0;
+    int index_arr[7];
+    for (int i = 0; i < 7; i++)
+    {
+      index_arr[i] = 0;
+    }
+    for (int i = 0; i < 7; i++) 
+    {
+      do 
+      {
+         index = random(7);
+      }
+      while (index_arr[index] != 0);
+      index_arr[index] = 1;
+      memcpy(&bag[i], &bagCopy[index], sizeof(bag[i]));
+    }
   }
-  bag[last] = temp;
-  //for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
 }
 
 void nextTetromino() {
