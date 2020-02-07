@@ -116,7 +116,7 @@ uint32_t rotationCount = 0;   // number of rotations for current piece
 boolean boardMap[ROWS][COLS]; // representation of game board/map
                               //  row 0/0 == bottom left(row 0 bottom / top visible 19)
 
-const uint32_t fallLockDelay = 11; // in frames / resets on successuful rotation or shifting
+const uint32_t fallLockDelay = 2;  // in frames / resets on successuful rotation or shifting
 uint32_t actionFrameCount = 0;     // used in things that need to count frames
 
 // variables for row removal/blinking animation
@@ -163,6 +163,9 @@ boolean gameEnded = false;
 #define BOARD_X   7
 #define BOARD_Y   128 -3 -MINO_SIZE
 
+unsigned long nextFrameStart = 0;
+int frameTime = 0;
+
 
 ////////////////////////////////////
 // AI
@@ -174,7 +177,10 @@ typedef struct {
 } position; // definition of a position
 
 #define POSLIST_SIZE 60 // maximum size of list of positions
-position possiblePositions[POSLIST_SIZE] = {}; // create list of positions
+#define KEEP_BEST_SCORES 10 // amount of scores to keep during puring in dual prediction mode
+
+position possiblePositions[POSLIST_SIZE] = {}; // create list of positions for current piece
+position possibleNextPositions[POSLIST_SIZE] = {}; // create list of positions for next piece
 
 // calculated targed positions for current tetrominos
 int aiTargetRow = 0;
@@ -217,5 +223,10 @@ void loop() {
 // Just draw as fast as possible for now (I2C is bottleneck here)
 //TODO move function to gameview or somehting
 bool nextFrame() {
+  unsigned long now = millis();
+  if (now < nextFrameStart) {
+    return false;
+  }
+  nextFrameStart = millis() + frameTime; 
   return true;
 }
