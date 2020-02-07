@@ -124,6 +124,7 @@ bool AIplaceInvalid(bool board[ROWS][COLS], Tetromino piece, int tr, int tc, int
 }
 
 
+// Generates and returns list of all possible valid placements of current piece on current board
 void generateAllPossiblePlacements() 
 { 
     // clear position list by setting invalid numbers
@@ -397,6 +398,8 @@ position selectBestPlacementUsingNextPiece(double currentScores[POSLIST_SIZE])
     return bestPosition;
 }
 
+
+// Returns heighest value in scores array, and write the index in index
 double heighestValidScore(double scores[POSLIST_SIZE], int &index)
 {
     double heighest = -DBL_MAX;
@@ -411,6 +414,7 @@ double heighestValidScore(double scores[POSLIST_SIZE], int &index)
     }
     return heighest;
 }
+
 
 // Keep remove the worst scores. Threshold defined in
 void pruneWorstScores(double scores[POSLIST_SIZE])

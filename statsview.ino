@@ -101,20 +101,61 @@ void drawInputs()
   memcpy(btnPressedPrev, btnPressed, BTN_COUNT);
 }
 
+
 void checkScrollWheel()
 {
-  if (digitalRead(PIN_WHEEL_PRESS) == LOW)
+  // scroll wheel press
+  int scrollWheelPress = digitalRead(PIN_WHEEL_PRESS);
+  if (scrollWheelPress == LOW && scrollWheelPressPrev == HIGH)
   {
-    doHardDrop = false;
+    Serial.println("pressed");
+    handleButton(BTN_WHEEL_PRESS);
   }
-  else
+  
+  if (scrollWheelPress == HIGH && scrollWheelPressPrev == LOW)
   {
-    doHardDrop = true;
+    Serial.println("!pressed");
   }
+  scrollWheelPressPrev = scrollWheelPress;
+
+
+  // scroll wheel up
+  int scrollWheelUp = digitalRead(PIN_WHEEL_UP);
+  if (scrollWheelUp == LOW && scrollWheelUpPrev == HIGH)
+  {
+    Serial.println("up");
+    handleButton(BTN_WHEEL_UP);
+  }
+  
+  if (scrollWheelUp == HIGH && scrollWheelUpPrev == LOW)
+  {
+    Serial.println("!up");
+  }
+  scrollWheelUpPrev = scrollWheelUp;
+
+
+  // scroll wheel down
+  int scrollWheelDown = digitalRead(PIN_WHEEL_DOWN);
+  if (scrollWheelDown == LOW && scrollWheelDownPrev == HIGH)
+  {
+    Serial.println("down");
+    handleButton(BTN_WHEEL_DOWN);
+  }
+  
+  if (scrollWheelDown == HIGH && scrollWheelDownPrev == LOW)
+  {
+    Serial.println("!down");
+  }
+  scrollWheelDownPrev = scrollWheelDown;
+
+
+
 }
 
 void drawStats()
 {
-  drawInputs();
+  if (ledsEnabled)
+    drawInputs();
+  
   checkScrollWheel();
 }

@@ -428,9 +428,9 @@ void updateGame() {
     }
     else
     {
-      unsigned long tmp = millis();
+      //unsigned long tmp = millis();
       calculateNextPlacement(); 
-      Serial.println(millis() - tmp);
+      //Serial.println(millis() - tmp);
     }
   }
   

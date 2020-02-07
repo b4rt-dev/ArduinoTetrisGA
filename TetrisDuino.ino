@@ -73,9 +73,13 @@ byte gameState = STATE_GAME_START; // current state of the game
 ////////////////////////////////////
 // BUTTONS
 ////////////////////////////////////
-#define PIN_WHEEL_DOWN  37
+#define PIN_WHEEL_DOWN  39
 #define PIN_WHEEL_PRESS 38
-#define PIN_WHEEL_UP    39
+#define PIN_WHEEL_UP    37
+
+#define BTN_WHEEL_DOWN  0
+#define BTN_WHEEL_PRESS 1
+#define BTN_WHEEL_UP    2
 
 // pins for leds
 #define PIN_LEFT    26
@@ -91,9 +95,16 @@ byte gameState = STATE_GAME_START; // current state of the game
 #define BTN_B       3
 #define BTN_A       4
 
+bool ledsEnabled = true;
+
 uint8_t btnStates[BTN_COUNT];       // button states, latched from btnPressed
 uint8_t btnPressed[BTN_COUNT];      // virtual button pressed states for AI
 uint8_t btnPressedPrev[BTN_COUNT];  // previous virtual button pressed states for AI, used for LEDs
+
+// previous states of button to detect 'rising/falling edge'
+int scrollWheelDownPrev   = 1;
+int scrollWheelUpPrev     = 1;
+int scrollWheelPressPrev  = 1;
 
 
 ////////////////////////////////////
@@ -166,6 +177,8 @@ boolean gameEnded = false;
 unsigned long nextFrameStart = 0;
 int frameTime = 0;
 
+bool gamePaused = false;
+
 
 ////////////////////////////////////
 // AI
@@ -188,6 +201,40 @@ int aiTargetCol = 0;
 int aiTargetRot = 0;
 
 bool doHardDrop = false;
+bool fastLearn = false;
+
+
+////////////////////////////////////
+// MENU
+////////////////////////////////////
+// menu IDs
+#define MENU_MAIN       0
+#define MENU_CONFIG     1
+#define MENU_LOG        2
+#define MENU_AI_STATS   3
+
+// number of items per menu
+#define MENU_MAIN_ITEMS         3
+#define MENU_CONFIG_ITEMS       7
+
+// items id in main menu
+#define MENU_MAIN_CONFIG        0
+#define MENU_MAIN_LOG           1
+#define MENU_MAIN_AI_STATS      2
+
+// items id in config menu
+#define MENU_CONFIG_HARDDROP    0
+#define MENU_CONFIG_DELAY       1
+#define MENU_CONFIG_LEDS        2
+#define MENU_CONFIG_FASTLEARN   3
+#define MENU_CONFIG_PAUSED      4
+#define MENU_CONFIG_RESETDATA   5
+#define MENU_CONFIG_BACK        6
+
+int currentMenu = MENU_MAIN;
+int selectionID = 0;
+
+
 
 ////////////////////////////////////
 // SETUP
