@@ -7,13 +7,34 @@ void stateGameStart() {
 void stateGamePlaying() {
   updateGame();
   doAImovement();
-  drawGame();
-  drawStats();
+  drawLEDs();
+  
+  if (!fastLearn)
+  {
+    drawGame();
+  }
+
+  else // skip all bottlenecking drawing
+  {
+    // set OLED display black
+    display.invertDisplay(0);
+    display.fillScreen(BLACK);
+    display.display();
+
+    // set all leds to off
+    digitalWrite(PIN_A, LOW);
+    digitalWrite(PIN_B, LOW);
+    digitalWrite(PIN_DOWN, LOW);
+    digitalWrite(PIN_LEFT, LOW);
+    digitalWrite(PIN_RIGHT, LOW);
+  }
+  
 
   if (gameEnded) {
     gameState = STATE_GA_UPDATE;
-    
-    invertDisplay(); // reduce burn in
+
+    if (!fastLearn) // we do not want to invert the display when it is off
+      invertDisplay(); // reduce burn in
   }
 }
 

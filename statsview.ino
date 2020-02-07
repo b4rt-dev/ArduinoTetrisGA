@@ -152,10 +152,13 @@ void checkScrollWheel()
 
 }
 
-void drawStats()
+void drawLEDs()
 {
   if (ledsEnabled)
     drawInputs();
-  
+}
+
+void processInputs()
+{
   checkScrollWheel();
 }

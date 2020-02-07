@@ -450,29 +450,29 @@ void pruneWorstScores(double scores[POSLIST_SIZE])
 
 void calculateNextPlacement() 
 {
-
     generateAllPossiblePlacements();
 
     double currentScores[POSLIST_SIZE];
     calculateAllScores(currentScores);
 
-    // TODO: do some pruning first list
-    pruneWorstScores(currentScores);
-
-    position bestPosition = selectBestPlacementUsingNextPiece(currentScores);
-
-    // TODO: make selection option between these two
     // use next piece in calculation
-    aiTargetRow = bestPosition.row;
-    aiTargetCol = bestPosition.col;
-    aiTargetRot = bestPosition.rot;
+    if (twoPiece)
+    {
+        pruneWorstScores(currentScores);
 
-    // do not use next piece in calculation
-    //int bestPosIndex = selectBestPlacement(currentScores);
-    //aiTargetRow = possiblePositions[bestPosIndex].row;
-    //aiTargetCol = possiblePositions[bestPosIndex].col;
-    //aiTargetRot = possiblePositions[bestPosIndex].rot;
+        position bestPosition = selectBestPlacementUsingNextPiece(currentScores);
 
+        aiTargetRow = bestPosition.row;
+        aiTargetCol = bestPosition.col;
+        aiTargetRot = bestPosition.rot;
+    }
+    else // do not use next piece in calculation
+    {
+        int bestPosIndex = selectBestPlacement(currentScores);
+        aiTargetRow = possiblePositions[bestPosIndex].row;
+        aiTargetCol = possiblePositions[bestPosIndex].col;
+        aiTargetRot = possiblePositions[bestPosIndex].rot;
+    }
 }
 
 

@@ -125,7 +125,7 @@ void handleButtonConfig(int btnID)
             }
             case MENU_CONFIG_LEDS: {
                 ledsEnabled = !ledsEnabled;
-                // also turn off the LEDs in case they were on
+                // turn off the LEDs in case they were on
                 digitalWrite(PIN_A, LOW);
                 digitalWrite(PIN_B, LOW);
                 digitalWrite(PIN_DOWN, LOW);
@@ -135,6 +135,21 @@ void handleButtonConfig(int btnID)
             }
             case MENU_CONFIG_FASTLEARN: {
                 fastLearn = !fastLearn;
+                // set harddrop to true and frametime to 0 to properly learn fast
+                // since it does not make sense and might slow down (not sure tho), leds are disabled as well
+                // while twoPiece makes learning significantly slower, it remains an option
+                // to use with fastLearning, since it makes sense
+                doHardDrop = true;
+                frameTime = 0;
+                if (fastLearn)
+                    ledsEnabled = false;
+                else
+                    ledsEnabled = true;
+
+                break; 
+            }
+            case MENU_CONFIG_TWO_PIECE: {
+                twoPiece = !twoPiece;
                 break; 
             }
             case MENU_CONFIG_PAUSED: {
@@ -173,7 +188,7 @@ void drawMainMenu()
     infoDisplay.setTextSize(1);
     infoDisplay.clearDisplay();
 
-    infoDisplay.setCursor(2, 4);
+    infoDisplay.setCursor(6, 4);
     infoDisplay.print("MAIN MENU");
     infoDisplay.drawFastHLine(0,6,48,WHITE);
 
@@ -182,7 +197,7 @@ void drawMainMenu()
         infoDisplay.fillRect(0,15 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 15);
+    infoDisplay.setCursor(1, 15);
     infoDisplay.print("CONFIG");
     infoDisplay.setTextColor(WHITE);
 
@@ -191,7 +206,7 @@ void drawMainMenu()
         infoDisplay.fillRect(0,23 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 23);
+    infoDisplay.setCursor(1, 23);
     infoDisplay.print("LOG");
     infoDisplay.setTextColor(WHITE);
 
@@ -200,7 +215,7 @@ void drawMainMenu()
         infoDisplay.fillRect(0,31 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 31);
+    infoDisplay.setCursor(1, 31);
     infoDisplay.print("AI STATS");
     infoDisplay.setTextColor(WHITE);
 }
@@ -221,7 +236,7 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,15 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 15);
+    infoDisplay.setCursor(1, 15);
     infoDisplay.print("H-DROP");
     infoDisplay.setCursor(35, 15);
     if (doHardDrop)
@@ -236,7 +251,7 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,23 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 23);
+    infoDisplay.setCursor(1, 23);
     infoDisplay.print("DELAY");
     infoDisplay.setCursor(35, 23);
     switch(frameTime)
@@ -255,7 +270,7 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,31 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 31);
+    infoDisplay.setCursor(1, 31);
     infoDisplay.print("LEDS");
     infoDisplay.setCursor(35, 31);
     if (ledsEnabled)
@@ -270,7 +285,7 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,39 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 39);
+    infoDisplay.setCursor(1, 39);
     infoDisplay.print("F-LEARN");
     infoDisplay.setCursor(35, 39);
     if (fastLearn)
@@ -280,14 +295,29 @@ void drawConfigMenu()
     infoDisplay.setTextColor(WHITE);
 
 
-    if (selectionID == MENU_CONFIG_PAUSED)
+    if (selectionID == MENU_CONFIG_TWO_PIECE)
     {
         infoDisplay.fillRect(0,47 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 47);
-    infoDisplay.print("PAUSED");
+    infoDisplay.setCursor(1, 47);
+    infoDisplay.print("2-PIECE");
     infoDisplay.setCursor(35, 47);
+    if (twoPiece)
+        infoDisplay.print("ON");
+    else
+        infoDisplay.print("OFF");
+    infoDisplay.setTextColor(WHITE);
+
+
+    if (selectionID == MENU_CONFIG_PAUSED)
+    {
+        infoDisplay.fillRect(0,55 -5, 48,7,WHITE);
+        infoDisplay.setTextColor(BLACK);
+    }
+    infoDisplay.setCursor(1, 55);
+    infoDisplay.print("PAUSED");
+    infoDisplay.setCursor(35, 55);
     if (gamePaused)
         infoDisplay.print("YES");
     else
@@ -297,10 +327,10 @@ void drawConfigMenu()
 
     if (selectionID == MENU_CONFIG_RESETDATA)
     {
-        infoDisplay.fillRect(0,64 -5, 48,7,WHITE);
+        infoDisplay.fillRect(0,72 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 64);
+    infoDisplay.setCursor(1, 72);
     infoDisplay.print("RESET DATA");
     infoDisplay.setTextColor(WHITE);
 
@@ -310,7 +340,7 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,82 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
-    infoDisplay.setCursor(0, 82);
+    infoDisplay.setCursor(1, 82);
     infoDisplay.print("BACK");
     infoDisplay.setTextColor(WHITE);
 }

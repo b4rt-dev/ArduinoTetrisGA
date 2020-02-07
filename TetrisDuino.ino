@@ -190,7 +190,7 @@ typedef struct {
 } position; // definition of a position
 
 #define POSLIST_SIZE 60 // maximum size of list of positions
-#define KEEP_BEST_SCORES 10 // amount of scores to keep during puring in dual prediction mode
+#define KEEP_BEST_SCORES 8 // amount of scores to keep during puring in dual prediction mode
 
 position possiblePositions[POSLIST_SIZE] = {}; // create list of positions for current piece
 position possibleNextPositions[POSLIST_SIZE] = {}; // create list of positions for next piece
@@ -202,6 +202,7 @@ int aiTargetRot = 0;
 
 bool doHardDrop = false;
 bool fastLearn = false;
+bool twoPiece = true;
 
 
 ////////////////////////////////////
@@ -215,7 +216,7 @@ bool fastLearn = false;
 
 // number of items per menu
 #define MENU_MAIN_ITEMS         3
-#define MENU_CONFIG_ITEMS       7
+#define MENU_CONFIG_ITEMS       8
 
 // items id in main menu
 #define MENU_MAIN_CONFIG        0
@@ -227,9 +228,10 @@ bool fastLearn = false;
 #define MENU_CONFIG_DELAY       1
 #define MENU_CONFIG_LEDS        2
 #define MENU_CONFIG_FASTLEARN   3
-#define MENU_CONFIG_PAUSED      4
-#define MENU_CONFIG_RESETDATA   5
-#define MENU_CONFIG_BACK        6
+#define MENU_CONFIG_TWO_PIECE   4
+#define MENU_CONFIG_PAUSED      5
+#define MENU_CONFIG_RESETDATA   6
+#define MENU_CONFIG_BACK        7
 
 int currentMenu = MENU_MAIN;
 int selectionID = 0;
@@ -257,13 +259,18 @@ void setup() {
 void loop() {
   
   if (nextFrame()) {
-    updateControls();
-    switch(gameState) {
-      case STATE_GAME_START:    stateGameStart();   break;
-      case STATE_GAME_PLAYING:  stateGamePlaying(); break;
-      case STATE_GA_UPDATE:     stateGAupdate();    break;
-      default: break;
+    if (!gamePaused)
+    {
+      updateControls();
+      switch(gameState) {
+        case STATE_GAME_START:    stateGameStart();   break;
+        case STATE_GAME_PLAYING:  stateGamePlaying(); break;
+        case STATE_GA_UPDATE:     stateGAupdate();    break;
+        default: break;
+      }
     }
+    // keep processing inputs during pause, so un-pausing is still possible
+    processInputs();
   }
 }
 
