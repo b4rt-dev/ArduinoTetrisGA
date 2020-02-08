@@ -236,6 +236,8 @@ bool twoPiece = true;
 int currentMenu = MENU_MAIN;
 int selectionID = 0;
 
+unsigned long nextInputFrameStart = 0;
+int nextInputFrameTime = 100;           // check input every 100ms
 
 
 ////////////////////////////////////
@@ -269,18 +271,31 @@ void loop() {
         default: break;
       }
     }
-    // keep processing inputs during pause, so un-pausing is still possible
+  }
+
+  // use seperate timing process to check inputs once in a while
+  if (timeToHandleInputs())
+  {
     processInputs();
   }
 }
 
-// Just draw as fast as possible for now (I2C is bottleneck here)
-//TODO move function to gameview or somehting
+// returns true when it is time to draw/process the next frame
 bool nextFrame() {
   unsigned long now = millis();
   if (now < nextFrameStart) {
     return false;
   }
   nextFrameStart = millis() + frameTime; 
+  return true;
+}
+
+// returns true when it is time to handle/process inputs
+bool timeToHandleInputs() {
+  unsigned long now = millis();
+  if (now < nextInputFrameStart) {
+    return false;
+  }
+  nextInputFrameStart = millis() + nextInputFrameTime; 
   return true;
 }
