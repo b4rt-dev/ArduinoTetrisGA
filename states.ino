@@ -39,7 +39,7 @@ void stateGamePlaying() {
 }
 
 void stateGAupdate() {
-  //TODO
+  updateGA();
   gameState = STATE_GAME_START;
 }
 

@@ -95,7 +95,7 @@ void shuffleBag()
     {
       do 
       {
-        srand(randomSeedBase + randomSeedPiece);
+        srand(generation + randomSeedPiece);
         index = rand() % 7;
         randomSeedPiece++;
       }
@@ -105,7 +105,7 @@ void shuffleBag()
     }
   }
 
-  for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
+  //for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
 }
 
 void nextTetromino() {

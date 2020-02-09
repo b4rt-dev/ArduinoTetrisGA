@@ -208,12 +208,12 @@ void calculateAllScores(double scores[POSLIST_SIZE])
 double calculateScore(bool board[ROWS][COLS])
 {
     return
-        3       *   scoreLinesCleared(board)        +
-        -1      *   scoreHeightDifference(board)    +
-        -3      *   scoreHoles(board)               +
-        -2      *   scoreBigWells(board)            +
-        -1      *   scoreMaxHorHoleDistance(board)  +
-        -1      *   scoreBumpiness(board)
+        wLines          *   scoreLinesCleared(board)        +
+        wDeltaHeight    *   scoreHeightDifference(board)    +
+        wHoles          *   scoreHoles(board)               +
+        wBigWells       *   scoreBigWells(board)            +
+        wMaxHoleDist    *   scoreMaxHorHoleDistance(board)  +
+        wBumpiness      *   scoreBumpiness(board)
         ;
 }
 
@@ -296,7 +296,6 @@ position selectBestPlacementUsingNextPiece(double currentScores[POSLIST_SIZE])
                                         AIplaceOnBoard(doubleTestMap, tetNext, row, col, rot);
 
                                         // calculate score and add score of current piece
-                                        // TODO add weight to one of these scores?
                                         score = calculateScore(doubleTestMap) + currentScores[currentPos];
 
                                         if (score > highestScore)

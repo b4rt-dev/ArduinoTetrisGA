@@ -160,7 +160,6 @@ bool gameEnded = false;
 
 // random number generator
 // used to get the same "random" piece sequence for every game with the same randomSeedBase (generation)
-unsigned long randomSeedBase = 37; // TODO set this to generation number * some high prime number
 unsigned long randomSeedPiece = 0; // increases each shuffle by one
 
 
@@ -209,11 +208,20 @@ bool doHardDrop = false;
 bool fastLearn = false;
 bool twoPiece = true;
 
+// weights for score functions
+double wLines         =  3.0;
+double wDeltaHeight   = -1.0;
+double wHoles         = -3.0;
+double wBigWells      = -2.0;
+double wMaxHoleDist   = -1.0;
+double wBumpiness     = -1.0;
+
 
 ////////////////////////////////////
 // GENETIC ALGORITHM
 ////////////////////////////////////
-
+int generation = 0;
+// population
 
 
 
