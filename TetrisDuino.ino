@@ -225,16 +225,20 @@ double wBumpiness     = -1.0;
 ////////////////////////////////////
 // GENETIC ALGORITHM
 ////////////////////////////////////
-#define ISLAND_SIZE_NORMAL    6
-#define ISLAND_SIZE_BIG       8
+// NOTE: these sizes must be dividable by 4
+#define ISLAND_SIZE_NORMAL    8
+#define ISLAND_SIZE_BIG       12
 #define ISLAND_SIZE_SMALL     4
-#define ISLAND_SIZE_ELITE     6
+#define ISLAND_SIZE_ELITE     8
 
 #define ISLAND1_ID            1
 #define ISLAND2_ID            2
 #define ISLAND3_ID            3
 #define ISLAND4_ID            4
 #define ISLANDELITE_ID        5
+
+#define MUTATION_PROB_CHILD   0.15
+#define MUTATION_PROB_ANY     0.1
 
 int generation = 0;
 
