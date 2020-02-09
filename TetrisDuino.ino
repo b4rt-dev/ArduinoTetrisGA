@@ -179,7 +179,7 @@ unsigned long randomSeedPiece = 0; // increases each shuffle by one
 #define BOARD_Y   128 -3 -MINO_SIZE
 
 unsigned long nextFrameStart = 0;
-int frameTime = 0;
+int frameTime = 30;
 
 bool gamePaused = false;
 
@@ -191,6 +191,11 @@ typedef struct {
     int row;
     int col;
     int rot;
+
+    String toString() const 
+    {
+      return "{ row:" + String(row) + ", col:" + String(col) + ", rot:" + String(rot) + " }";
+    }
 } position; // definition of a position
 
 #define POSLIST_SIZE 60 // maximum size of list of positions
@@ -220,9 +225,60 @@ double wBumpiness     = -1.0;
 ////////////////////////////////////
 // GENETIC ALGORITHM
 ////////////////////////////////////
-int generation = 0;
-// population
+#define ISLAND_SIZE_NORMAL    6
+#define ISLAND_SIZE_BIG       8
+#define ISLAND_SIZE_SMALL     4
+#define ISLAND_SIZE_ELITE     6
 
+#define ISLAND1_ID            1
+#define ISLAND2_ID            2
+#define ISLAND3_ID            3
+#define ISLAND4_ID            4
+#define ISLANDELITE_ID        5
+
+int generation = 0;
+
+int currentChromosomeID = 0;
+int currentIslandID = ISLAND1_ID;
+
+// population
+typedef struct {
+    // weights (genes)
+    double wLines;
+    double wDeltaHeight;
+    double wHoles;
+    double wBigWells;
+    double wMaxHoleDist;
+    double wBumpiness;
+
+    // fitness
+    int score;
+    int lines;
+
+    // information
+    int originGeneration; // generation in which the chromosome was created
+    int originIsland; // island on which the chromosome was created
+
+    String toString() const 
+    {
+      return "{ " + String(wLines) + ", " + String(wDeltaHeight) + ", " + String(wHoles) + ", " + String(wBigWells) + 
+      ", " + String(wMaxHoleDist) + ", " + String(wBumpiness) +  "; " + String(score) + ", " + String(lines) + 
+      "; " + String(originGeneration) + ", " + String(originIsland) + " }";
+    }
+} chromosome; // definition of a chromosome
+
+// 4 islands + 1 elite island
+const int island1Size     = ISLAND_SIZE_NORMAL;
+const int island2Size     = ISLAND_SIZE_NORMAL;
+const int island3Size     = ISLAND_SIZE_SMALL;
+const int island4Size     = ISLAND_SIZE_BIG;
+const int islandEliteSize = ISLAND_SIZE_NORMAL;
+
+chromosome island1[island1Size];
+chromosome island2[island2Size];
+chromosome island3[island3Size];
+chromosome island4[island4Size];
+chromosome islandElite[islandEliteSize];
 
 
 ////////////////////////////////////
@@ -279,6 +335,8 @@ void setup() {
   setupDisplay();
   setupScrollWheel();
   setupControls();
+
+  initializeGA();
 }
 
 

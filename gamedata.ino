@@ -5,12 +5,15 @@ void scoreAddDropPoints() {
   score += 1;
 }
 
+
+// increases score based on the number of lines cleared at the same time
+// is not affected by level to keep scores linear
 void scoreAddClearRowsPoints(uint8_t clearedLines) {
   switch(clearedLines) {
-    case 1: score += 40 * (level + 1); break;
-    case 2: score += 100 * (level + 1); break;
-    case 3: score += 300 * (level + 1); break;
-    case 4: score += 1200 * (level + 1); break;
+    case 1: score += 40; break;
+    case 2: score += 100; break;
+    case 3: score += 300; break;
+    case 4: score += 1200; break;
     default: break;
   }
 }
@@ -105,7 +108,7 @@ void shuffleBag()
     }
   }
 
-  //for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
+  for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
 }
 
 void nextTetromino() {
@@ -377,11 +380,18 @@ void setNewGameData() {
   endFillAnimation = false;
   removeRowsAnimation = false;
   gameEnded = false;
+  // reset bag (and shuffle after) to get the same bag every game (for current generation)
+  bag[0] = T_I;
+  bag[1] = T_J;
+  bag[2] = T_L;
+  bag[3] = T_O;
+  bag[4] = T_S;
+  bag[5] = T_T;
+  bag[6] = T_Z;
   shuffleBag();
   nextTetromino();
   clearBoard();
   calculateNextPlacement();
-  
 }
 
 void handleFilledRows()
