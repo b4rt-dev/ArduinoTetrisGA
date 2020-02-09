@@ -119,13 +119,13 @@ void checkScrollWheel()
   int scrollWheelPress = digitalRead(PIN_WHEEL_PRESS);
   if (scrollWheelPress == LOW && scrollWheelPressPrev == HIGH)
   {
-    Serial.println("pressed");
+    //Serial.println("pressed");
     handleButton(BTN_WHEEL_PRESS);
   }
   
   if (scrollWheelPress == HIGH && scrollWheelPressPrev == LOW)
   {
-    Serial.println("!pressed");
+    //Serial.println("!pressed");
   }
   scrollWheelPressPrev = scrollWheelPress;
 
@@ -134,13 +134,13 @@ void checkScrollWheel()
   int scrollWheelUp = digitalRead(PIN_WHEEL_UP);
   if (scrollWheelUp == LOW && scrollWheelUpPrev == HIGH)
   {
-    Serial.println("up");
+    //Serial.println("up");
     handleButton(BTN_WHEEL_UP);
   }
   
   if (scrollWheelUp == HIGH && scrollWheelUpPrev == LOW)
   {
-    Serial.println("!up");
+    //Serial.println("!up");
   }
   scrollWheelUpPrev = scrollWheelUp;
 
@@ -149,13 +149,13 @@ void checkScrollWheel()
   int scrollWheelDown = digitalRead(PIN_WHEEL_DOWN);
   if (scrollWheelDown == LOW && scrollWheelDownPrev == HIGH)
   {
-    Serial.println("down");
+    //Serial.println("down");
     handleButton(BTN_WHEEL_DOWN);
   }
   
   if (scrollWheelDown == HIGH && scrollWheelDownPrev == LOW)
   {
-    Serial.println("!down");
+    //Serial.println("!down");
   }
   scrollWheelDownPrev = scrollWheelDown;
 

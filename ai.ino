@@ -181,85 +181,6 @@ void generateAllPossiblePlacements()
 }
 
 
-// Returns the height of heighest column on the given board
-int scoreMaxHeight(bool board[ROWS][COLS]) 
-{
-    int max = 0;
-    for (int col = 0; col < COLS; col++) 
-    {
-        int highestRow = 0;
-        for (int row = 0; row < ROWS; row++) 
-        {
-            if (board[row][col]) 
-            {
-                if (row +1 > highestRow) // +1 because the bottom row is row zero
-                { 
-                    highestRow = row +1; 
-                }
-            }
-        }
-        if (highestRow > max){
-            max = highestRow;
-        }
-    }
-    return max;
-}
-
-
-// Returns the number of full rows on the given board
-int scoreLinesCleared(bool board[ROWS][COLS]) 
-{
-    int lines = 0;
-    for (int row = 0; row < ROWS; row++)
-    {
-        bool fullLine = true;
-        for (int col = 0; col < COLS; col++) 
-        {
-            if (!board[row][col])
-            {
-                fullLine = false;
-            }
-        }
-        if (fullLine)
-        {
-            lines++;
-        }
-    }
-    return lines;
-}
-    
-
-// Returns the number of holes on the given board
-int scoreHoles(bool board[ROWS][COLS])
-{
-    int holes = 0;
-    // calculate holes for each column
-    for (int col = 0; col < COLS; col++) 
-    {
-        int colHoles = 0;
-        bool foundBlock = false;
-        // go from top to bottom
-        for (int row = ROWS-1; row >= 0; row--) 
-        {
-            if (board[row][col]) 
-            {
-                foundBlock = true;
-            } 
-            else 
-            {
-                // only count the empty space as hole if there was a block found above
-                if (foundBlock) 
-                {
-                    colHoles++;
-                }
-            }
-        }
-        holes = holes + colHoles;
-    }
-    return holes;
-}
-
-
 // Calculate the scores of all valid positions in possiblePositions
 // and store the scores in the given array
 void calculateAllScores(double scores[POSLIST_SIZE])
@@ -287,9 +208,12 @@ void calculateAllScores(double scores[POSLIST_SIZE])
 double calculateScore(bool board[ROWS][COLS])
 {
     return
-        -1 * scoreMaxHeight(board) +
-        3 * scoreLinesCleared(board) +
-        -1.5 * scoreHoles(board)
+        3       *   scoreLinesCleared(board)        +
+        -1      *   scoreHeightDifference(board)    +
+        -3      *   scoreHoles(board)               +
+        -2      *   scoreBigWells(board)            +
+        -1      *   scoreMaxHorHoleDistance(board)  +
+        -1      *   scoreBumpiness(board)
         ;
 }
 

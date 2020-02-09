@@ -1,17 +1,17 @@
-/* Things to draw on status display:
-highscore
-highlines
-highlevel
+/* Things TODO draw on status display:
 
 config:
-  - enable harddrops
-
-GA stuff:
-  - current weights
-  - generation
-  - population size
-  - etc
+    - display brightness
 */
+
+
+void processLog()
+{
+  if (logString.length() > LOG_SIZE)
+  {
+    logString = logString.substring(logString.length() - LOG_SIZE);
+  }
+}
 
 
 // button handler
@@ -26,6 +26,11 @@ void handleButton(int btnID) {
         case MENU_CONFIG: 
         {
             handleButtonConfig(btnID);
+            break;
+        }
+        case MENU_LOG:
+        {
+            handleButtonLog(btnID);
             break;
         }
         default: break;
@@ -157,6 +162,27 @@ void handleButtonConfig(int btnID)
     }
 }
 
+// button handler in log menu
+void handleButtonLog(int btnID)
+{
+    // down
+    if (btnID == BTN_WHEEL_DOWN) {
+        // scroll log up
+    }
+
+    // up
+    if (btnID == BTN_WHEEL_UP) {
+        // scroll log down
+    }
+
+    // press
+    if (btnID == BTN_WHEEL_PRESS) {
+        // there is only a back button, so just go back to main menu
+        currentMenu = MENU_MAIN;
+        selectionID = MENU_MAIN_LOG;
+    }
+}
+
 // draws menu based on currentMenu
 void drawMenu()
 {
@@ -165,6 +191,9 @@ void drawMenu()
 
     if (currentMenu == MENU_CONFIG)
         drawConfigMenu();
+
+    if (currentMenu == MENU_LOG)
+        drawLogMenu();
     
     infoDisplay.display();
 }  
@@ -327,6 +356,30 @@ void drawConfigMenu()
         infoDisplay.fillRect(0,82 -5, 48,7,WHITE);
         infoDisplay.setTextColor(BLACK);
     }
+    infoDisplay.setCursor(1, 82);
+    infoDisplay.print("BACK");
+    infoDisplay.setTextColor(WHITE);
+}
+
+// draws log menu
+void drawLogMenu()
+{
+    infoDisplay.setTextSize(1);
+    infoDisplay.clearDisplay();
+
+    infoDisplay.setCursor(6, 4);
+    infoDisplay.print("LOG MENU");
+    infoDisplay.drawFastHLine(0,6,48,WHITE);
+
+
+    infoDisplay.setCursor(0, 15);
+    infoDisplay.print(logString);
+    infoDisplay.setTextColor(WHITE);
+
+
+    infoDisplay.fillRect(0,82 -5, 48,7,WHITE);
+    infoDisplay.setTextColor(BLACK);
+
     infoDisplay.setCursor(1, 82);
     infoDisplay.print("BACK");
     infoDisplay.setTextColor(WHITE);

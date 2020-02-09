@@ -95,13 +95,17 @@ void shuffleBag()
     {
       do 
       {
-         index = random(7);
+        srand(randomSeedBase + randomSeedPiece);
+        index = rand() % 7;
+        randomSeedPiece++;
       }
       while (index_arr[index] != 0);
       index_arr[index] = 1;
       memcpy(&bag[i], &bagCopy[index], sizeof(bag[i]));
     }
   }
+
+  for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
 }
 
 void nextTetromino() {
@@ -362,7 +366,8 @@ boolean updateFillRowsRowsAnimationData() {
 // MAIN LOGIC
 ////////////////////////////////////
 
-void setNewGameData() { // random_shuffle(&a[0], &a[10]);
+void setNewGameData() {
+  randomSeedPiece = 0;
   score = 0;
   lines = 0;
   level = 0;
@@ -376,6 +381,20 @@ void setNewGameData() { // random_shuffle(&a[0], &a[10]);
   nextTetromino();
   clearBoard();
   calculateNextPlacement();
+  
+}
+
+void handleFilledRows()
+{
+  removeRowsAnimation = false;
+  uint8_t removedRows = boardRemoveFilledRows();
+  scoreAddClearRowsPoints(removedRows);
+  lines += removedRows;
+  uint8_t newLevel = lines / 10;
+  actionFrameCount = 0;
+  if (newLevel != level) {
+    level = newLevel;
+  }
 }
 
 void updateGame() {
@@ -385,26 +404,25 @@ void updateGame() {
     updateTetromino();
     
     if (tetCurrent == T_NONE && haveRowsToRemove()) {
-      
-      removeRowsAnimation = true;
-      actionFrameCount = 0;
-      boardRowsRemoveBlinkFrameCount = 0;
-      dontDrawFilledRows = false;
+      // if fastLearn is enabled, skip animation for clearing lines
+      if (fastLearn)
+      {
+        handleFilledRows();
+      }
+      else
+      {
+        removeRowsAnimation = true;
+        actionFrameCount = 0;
+        boardRowsRemoveBlinkFrameCount = 0;
+        dontDrawFilledRows = false;
+      }
     }
 
   } else 
   if (removeRowsAnimation) {
 
      if (updateRemoveRowsAnimationData()) { // ended
-      removeRowsAnimation = false;
-      uint8_t removedRows = boardRemoveFilledRows();
-      scoreAddClearRowsPoints(removedRows);
-      lines += removedRows;
-      uint8_t newLevel = lines / 10;
-      actionFrameCount = 0;
-      if (newLevel != level) {
-        level = newLevel;
-      }
+      handleFilledRows();
      }
     
   } else 

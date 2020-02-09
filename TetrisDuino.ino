@@ -124,21 +124,21 @@ uint32_t level = 0;       // level of current game
 uint32_t highlevel = 0;   // level of game with the highest level (TODO implement this)
 
 uint32_t rotationCount = 0;   // number of rotations for current piece
-boolean boardMap[ROWS][COLS]; // representation of game board/map
+bool boardMap[ROWS][COLS];    // representation of game board/map
                               //  row 0/0 == bottom left(row 0 bottom / top visible 19)
 
 const uint32_t fallLockDelay = 2;  // in frames / resets on successuful rotation or shifting
 uint32_t actionFrameCount = 0;     // used in things that need to count frames
 
 // variables for row removal/blinking animation
-boolean boardRowsToRemove[ROWS] = {
+bool boardRowsToRemove[ROWS] = {
   false, false, false, false, false, false, false, false, false, false, false, 
   false, false, false, false, false, false, false, false, false, false, false
   }; // to keep track of full rows to remove
 const int8_t boardRowsRemoveInterval = 10;
 int8_t boardRowsRemoveBlinkFrameCount = 0;
 const int8_t boardRowsRemoveBlinkInterval = 1;
-boolean dontDrawFilledRows = false;
+bool dontDrawFilledRows = false;
 
 // tetriminos variables (TODO change uint8_t to int8_t)
 int32_t tetCol = 4;        // current column, can be negative
@@ -154,9 +154,14 @@ uint32_t bagNextIndex = 0;
 Tetromino bag[] = {T_I,  T_J,  T_L,  T_O,  T_S,  T_T,  T_Z };
 
 // flags
-boolean removeRowsAnimation = false;
-boolean endFillAnimation = false;     // game end fill animation
-boolean gameEnded = false;
+bool removeRowsAnimation = false;
+bool endFillAnimation = false;     // game end fill animation
+bool gameEnded = false;
+
+// random number generator
+// used to get the same "random" piece sequence for every game with the same randomSeedBase (generation)
+unsigned long randomSeedBase = 37; // TODO set this to generation number * some high prime number
+unsigned long randomSeedPiece = 0; // increases each shuffle by one
 
 
 ////////////////////////////////////
@@ -206,6 +211,13 @@ bool twoPiece = true;
 
 
 ////////////////////////////////////
+// GENETIC ALGORITHM
+////////////////////////////////////
+
+
+
+
+////////////////////////////////////
 // MENU
 ////////////////////////////////////
 // menu IDs
@@ -239,6 +251,13 @@ int selectionID = 0;
 unsigned long nextInputFrameStart = 0;
 int nextInputFrameTime = 100;           // check input every 100ms
 
+// logging
+#define LOG_SIZE                50
+String logString = "TO BE IMPLEMENTED";
+
+unsigned long nextLogFrameStart = 0;
+int nextLogFrameTime = 1000;           // update log every 1000ms
+
 
 ////////////////////////////////////
 // SETUP
@@ -247,11 +266,11 @@ void setup() {
   Serial.begin(115200); // fast serial
 
   delay(100);            // wait a bit
+  logString.reserve(LOG_SIZE + 50);  // reserve memory for logstring operations, with 50 chars extra
   setupLEDs();
   setupDisplay();
   setupScrollWheel();
   setupControls();
-  shuffleBag(); 
 }
 
 
@@ -271,12 +290,24 @@ void loop() {
         default: break;
       }
     }
+
+    processLog();
   }
 
   // use seperate timing process to check inputs once in a while
   if (timeToHandleInputs())
   {
     processInputs();
+  }
+
+  // use seperate timing to automatically update log when in log menu
+  if (timeToUpdateLog())
+  {
+    if (currentMenu == MENU_LOG)
+    {
+      drawLogMenu();
+      infoDisplay.display();
+    }
   }
 }
 
@@ -297,5 +328,16 @@ bool timeToHandleInputs() {
     return false;
   }
   nextInputFrameStart = millis() + nextInputFrameTime; 
+  return true;
+}
+
+
+// returns true when it is time to update and redraw the log
+bool timeToUpdateLog() {
+  unsigned long now = millis();
+  if (now < nextLogFrameStart) {
+    return false;
+  }
+  nextLogFrameStart = millis() + nextLogFrameTime; 
   return true;
 }
