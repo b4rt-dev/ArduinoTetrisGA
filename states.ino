@@ -32,7 +32,13 @@ void stateGamePlaying() {
 
   if (gameEnded) {
     gameState = STATE_GA_UPDATE;
-    Serial.println("Game ended");
+    
+    Serial.print("Game over for chromosome ");
+    Serial.print(currentChromosomeID);
+    Serial.print(" on island ");
+    Serial.print(currentIslandID);
+    Serial.print(" with a score of ");
+    Serial.println(score);
 
     if (!fastLearn) // we do not want to invert the display when it is off
       invertDisplay(); // reduce burn in
@@ -40,7 +46,7 @@ void stateGamePlaying() {
 }
 
 void stateGAupdate() {
-  Serial.println("Updating GA");
+  //Serial.println("Updating GA");
   updateGA();
   gameState = STATE_GAME_START;
 }

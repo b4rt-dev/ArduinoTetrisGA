@@ -108,7 +108,7 @@ void shuffleBag()
     }
   }
 
-  for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
+  //for(int j = 0; j < 7; j++) { Serial.print(bag[j]); Serial.print(" "); } Serial.println("");
 }
 
 void nextTetromino() {

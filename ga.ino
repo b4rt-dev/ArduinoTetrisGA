@@ -1,4 +1,4 @@
-
+// random number generator codes are mostly different, for more randomness
 
 // create new random population for all 5 islands
 void createPopulation()
@@ -13,7 +13,7 @@ void createPopulation()
         island1[i].wMaxHoleDist = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0;
         island1[i].wBumpiness   = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0;
 
-        island1[i].score        = esp_random() %20; // TODO remove this debugging
+        island1[i].score        = 0; // debug with esp_random() % MAXSCORE-1
         island1[i].lines        = 0;
 
         island1[i].originGeneration = generation;
@@ -110,22 +110,18 @@ void initializeGA()
 
     createPopulation();
 
+    // set values for AI
     wLines         = island1[currentChromosomeID].wLines;
     wDeltaHeight   = island1[currentChromosomeID].wDeltaHeight;
     wHoles         = island1[currentChromosomeID].wHoles;
     wBigWells      = island1[currentChromosomeID].wBigWells;
     wMaxHoleDist   = island1[currentChromosomeID].wMaxHoleDist;
     wBumpiness     = island1[currentChromosomeID].wBumpiness;
-
-    updateGeneraion();
-    while (true) delay(100);
 }
 
 
 void updateGA()
 {
-
-
     switch (currentIslandID)
     {
         case ISLAND1_ID:
@@ -276,6 +272,17 @@ void updateGA()
 
                 // end generation and go to the next one
                 updateGeneraion();
+
+                // setup variables for AI
+                currentChromosomeID = 0;
+                currentIslandID     = ISLAND1_ID;
+
+                wLines         = island1[currentChromosomeID].wLines;
+                wDeltaHeight   = island1[currentChromosomeID].wDeltaHeight;
+                wHoles         = island1[currentChromosomeID].wHoles;
+                wBigWells      = island1[currentChromosomeID].wBigWells;
+                wMaxHoleDist   = island1[currentChromosomeID].wMaxHoleDist;
+                wBumpiness     = island1[currentChromosomeID].wBumpiness;
             }
             else
             {
@@ -292,7 +299,9 @@ void updateGA()
 
 }
 
-void makeRandomPairIndexes(int indexes[], int arraySize)
+
+// randomly shuffles given array of indexes
+void randomShuffleIndexes(int indexes[], int arraySize)
 {
     for (int i=0; i < arraySize; i++) {
        int n = random(0, arraySize);
@@ -303,7 +312,7 @@ void makeRandomPairIndexes(int indexes[], int arraySize)
 }
 
 
-// generates crossover from two given parents (indices) on a given island
+// generates crossover from two given parents (indices) on a given island, with mutation probability
 chromosome crossOver(chromosome island[], int parent2, int parent1)
 {
     chromosome child;
@@ -312,37 +321,61 @@ chromosome crossOver(chromosome island[], int parent2, int parent1)
     child.lines        = 0;
 
     child.originGeneration = generation + 1;
-    child.originIsland     = 0; //TODO
+    child.originIsland     = currentIslandID; // ID should be set correctly during update island function
 
-    if (esp_random() % 2 == 1) 
-        child.wLines = island[parent1].wLines;
-    else
-        child.wLines = island[parent2].wLines;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wLines = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wLines = island[parent1].wLines;
+        else child.wLines = island[parent2].wLines;
+    }
 
-    if (esp_random() % 2 == 1) 
-        child.wDeltaHeight = island[parent1].wDeltaHeight;
-    else
-        child.wDeltaHeight = island[parent2].wDeltaHeight;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wDeltaHeight = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wDeltaHeight = island[parent1].wDeltaHeight;
+        else child.wDeltaHeight = island[parent2].wDeltaHeight;
+    }
 
-    if (esp_random() % 2 == 1) 
-        child.wHoles = island[parent1].wHoles;
-    else
-        child.wHoles = island[parent2].wHoles;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wHoles = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wHoles = island[parent1].wHoles;
+        else child.wHoles = island[parent2].wHoles;
+    }
 
-    if (esp_random() % 2 == 1) 
-        child.wBigWells = island[parent1].wBigWells;
-    else
-        child.wBigWells = island[parent2].wBigWells;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wBigWells = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wBigWells = island[parent1].wBigWells;
+        else child.wBigWells = island[parent2].wBigWells;
+    }
 
-    if (esp_random() % 2 == 1) 
-        child.wMaxHoleDist = island[parent1].wMaxHoleDist;
-    else
-        child.wMaxHoleDist = island[parent2].wMaxHoleDist;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wMaxHoleDist = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wMaxHoleDist = island[parent1].wMaxHoleDist;
+        else child.wMaxHoleDist = island[parent2].wMaxHoleDist;
+    }
 
-    if (esp_random() % 2 == 1) 
-        child.wBumpiness = island[parent1].wBumpiness;
-    else
-        child.wBumpiness = island[parent2].wBumpiness;
+    if (esp_random() % 101 <= MUTATION_PROB_CHILD*100){
+        childMutationsInCurrentGen++;
+        child.wBumpiness = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+    } else {
+        if (esp_random() % 2 == 1) 
+            child.wBumpiness = island[parent1].wBumpiness;
+        else child.wBumpiness = island[parent2].wBumpiness;
+    }
 
     return child;
 }
@@ -358,14 +391,96 @@ int getFittest(chromosome island[], int candidate1, int candidate2)
         return candidate2;
 }
 
-void selection(chromosome island[], int islandSize, int selectedChromosomes[])
+
+// returns true if given value is present in given array with given size
+bool isInArray(int array[], int size, int value)
 {
-    // print island population
+    bool found = false;
+    for (int i = 0; i < size; i++) {
+        if (array[i] == value) found = true;
+    }
+    return found;
+}
+
+
+// writes the islandSize/4 weakes indices of the given island in weakest[]
+void getWeakest(chromosome island[], int islandSize, int weakest[])
+{
+    // initialize weakest[] with negative values to prevent issues with isInArray()
+    for (int i = 0; i < islandSize/4; i++)
+        weakest[i] = -1;
+
+    // select the islandSize/4 weakest
+    for (int selectedCounter = 0; selectedCounter < islandSize/4; selectedCounter++)
+    {
+        int lowestScore = INT32_MAX;    // since 0 is the lowest score
+        int lowestScoreIndex = 0;       // keep track of index of lowest score
+        for (int i = 0; i < islandSize; i++)
+        {
+            // make sure we do not have already selected this index
+            if (island[i].score < lowestScore && !isInArray(weakest, islandSize/4, i))
+            {
+                lowestScoreIndex = i;
+                lowestScore = island[i].score;
+            }
+        }
+        // add weakest to weakest list
+        weakest[selectedCounter] = lowestScoreIndex;
+    }   
+}
+
+
+// performs random mutations on entire given island
+void mutateIsland(chromosome island[], int islandSize)
+{
     for (int i = 0; i < islandSize; i++)
     {
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wLines = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+        
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wDeltaHeight = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+        
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wHoles = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+        
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wBigWells = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+        
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wMaxHoleDist = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+        
+        if (esp_random() % 101 <= MUTATION_PROB_ANY*100){
+        generalMutationsInCurrentGen++;
+        island[i].wBumpiness = (((double) esp_random() / UINT32_MAX) - 0.5) * 2.0; // mutate
+        }
+    }
+}
+
+
+// updates given island
+void updateIsland(chromosome island[], int islandSize)
+{
+    // print island population
+    /*
+    for (int i = 0; i < islandSize; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
         Serial.println(island[i].toString());
     }
     Serial.println();
+    */
 
 
     // create random indexes used for creating pairs
@@ -374,65 +489,345 @@ void selection(chromosome island[], int islandSize, int selectedChromosomes[])
     {
         pairIndexes[i] = i;
     }
-    makeRandomPairIndexes(pairIndexes, islandSize);
+    randomShuffleIndexes(pairIndexes, islandSize);
     
 
-    // print indexes
-    /*
-    for (int i = 0; i < islandSize; i++)
-    {
-        Serial.print(pairIndexes[i]);
-        Serial.print(" ");
-    }
-    Serial.println();
-    */
-
-    // for each pair, select the fittest
+    // for each pair, select the fittest by tournament selection (of size 2)
     int winners[islandSize/2];
     for (int i = 0; i < (islandSize/2); i++)
     {
+        /*
         Serial.print(pairIndexes[i*2]);
         Serial.print(" ");
         Serial.print(pairIndexes[i*2 + 1]);
         Serial.print(" winner: ");
         Serial.println(getFittest(island, pairIndexes[i*2], pairIndexes[i*2 + 1]));
+        */
         winners[i] = getFittest(island, pairIndexes[i*2], pairIndexes[i*2 + 1]);
     }
 
-    // print winners
-    /*
-    for (int i = 0; i < (islandSize/2); i++)
-        Serial.println(winners[i]);
-    */
-
     // the winners (parents) are already randomized, so no need for that anymore
 
+    // create offspring
     chromosome offspring[islandSize/4];
     for (int i = 0; i < (islandSize/4); i++)
     {
         offspring[i] = crossOver(island, winners[i*2], winners[i*2 + 1]);
+        /*
         Serial.print(winners[i*2]);
         Serial.print(" ");
         Serial.print(winners[i*2 + 1]);
         Serial.print(" child: ");
         Serial.println(offspring[i].toString());
+        */
     }
 
+    // find the islandSize/4 weakest to replace them
+    int weakest[islandSize/4];
+    getWeakest(island, islandSize, weakest);
+
+    /*
     for (int i = 0; i < (islandSize/4); i++)
-        Serial.println(offspring[i].toString());
+    {
+        Serial.print(weakest[i]);
+        Serial.print(": ");
+        Serial.println(island[weakest[i]].toString());
+    }
+    */
+
+    // replace the weakest
+    for (int i = 0; i < (islandSize/4); i++)
+    {
+        island[weakest[i]] = offspring[i];
+    }
+
+
+    // do random mutations on entire island population
+    mutateIsland(island, islandSize);
+
+    // print new island population
+    /*
+    Serial.println("New population:");
+    for (int i = 0; i < islandSize; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island[i].toString());
+    }
+    Serial.println();
+    */
 
 }
 
 
-void updateIsland1()
+// returns best performing chromosome index of a given island
+int getBestPerformerOfIsland(chromosome island[], int islandSize)
 {
-    // do selection
-    int selectedChromosomes[island1Size/2];
-    selection(island1, island1Size, selectedChromosomes);
+    int bestScore = 0;
+    int bestScoringIndex = 0;
 
+    for (int i = 0; i < islandSize; i++)
+    {
+        if (island[i].score > bestScore)
+        {
+            bestScore = island[i].score;
+            bestScoringIndex = i;
+        }
+    }
+    return bestScoringIndex;
 }
+
+// migrates each best performer of the previous generation to the elite island
+// in return for a random chromosome
+void doMigration()
+{
+    // create random indexes to select chromosomes that will be sent away from the elite island
+    int randomIndexes[islandEliteSize];
+    for (int i = 0; i < islandEliteSize; i++)
+    {
+        randomIndexes[i] = i;
+    }
+    randomShuffleIndexes(randomIndexes, islandEliteSize);
+
+    // use the first four indexes of the random indexes to select the migrator
+    // put them in virtual boats
+    chromosome migratorToIsland1 = islandElite[randomIndexes[0]];
+    chromosome migratorToIsland2 = islandElite[randomIndexes[1]];
+    chromosome migratorToIsland3 = islandElite[randomIndexes[2]];
+    chromosome migratorToIsland4 = islandElite[randomIndexes[3]];
+
+    /*
+    Serial.println("randos from elite island to be sent away:");
+    Serial.print(randomIndexes[0]); Serial.print(": ");
+    Serial.println(migratorToIsland1.toString());
+    Serial.print(randomIndexes[1]); Serial.print(": ");
+    Serial.println(migratorToIsland2.toString());
+    Serial.print(randomIndexes[2]); Serial.print(": ");
+    Serial.println(migratorToIsland3.toString());
+    Serial.print(randomIndexes[3]); Serial.print(": ");
+    Serial.println(migratorToIsland4.toString());
+    Serial.println();
+    */
+
+    // for each of the other four islands, select the best performer
+    int bestIsland1PerformerIndex = getBestPerformerOfIsland(island1, island1Size);
+    int bestIsland2PerformerIndex = getBestPerformerOfIsland(island2, island2Size);
+    int bestIsland3PerformerIndex = getBestPerformerOfIsland(island3, island3Size);
+    int bestIsland4PerformerIndex = getBestPerformerOfIsland(island4, island4Size);
+
+    // put them in virtual boats
+    chromosome migratorFromIsland1 = island1[bestIsland1PerformerIndex];
+    chromosome migratorFromIsland2 = island2[bestIsland2PerformerIndex];
+    chromosome migratorFromIsland3 = island3[bestIsland3PerformerIndex];
+    chromosome migratorFromIsland4 = island4[bestIsland4PerformerIndex];
+
+    /*
+    Serial.println("best perfomrers from each island to be sent away:");
+    Serial.print(bestIsland1PerformerIndex); Serial.print(": ");
+    Serial.println(migratorFromIsland1.toString());
+    Serial.print(bestIsland2PerformerIndex); Serial.print(": ");
+    Serial.println(migratorFromIsland2.toString());
+    Serial.print(bestIsland3PerformerIndex); Serial.print(": ");
+    Serial.println(migratorFromIsland3.toString());
+    Serial.print(bestIsland4PerformerIndex); Serial.print(": ");
+    Serial.println(migratorFromIsland4.toString());
+    Serial.println();
+    */
+
+    // do the actual migration by letting the boats arrive
+    // start with randoms from elite island, to prevent sending back the new migrant
+    island1[bestIsland1PerformerIndex] = migratorToIsland1;
+    island2[bestIsland2PerformerIndex] = migratorToIsland2;
+    island3[bestIsland3PerformerIndex] = migratorToIsland3;
+    island4[bestIsland4PerformerIndex] = migratorToIsland4;
+
+    // send best perfomer from each island to the elite island
+    islandElite[randomIndexes[0]] = migratorFromIsland1;
+    islandElite[randomIndexes[1]] = migratorFromIsland2;
+    islandElite[randomIndexes[2]] = migratorFromIsland3;
+    islandElite[randomIndexes[3]] = migratorFromIsland4;
+
+    /*
+    Serial.println("print of each island to verify that migration was successful");
+
+    Serial.println("Island1:");
+    for (int i = 0; i < island1Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island1[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island2:");
+    for (int i = 0; i < island2Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island2[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island3:");
+    for (int i = 0; i < island3Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island3[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island4:");
+    for (int i = 0; i < island4Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island4[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island Elite:");
+    for (int i = 0; i < islandEliteSize; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(islandElite[i].toString());
+    }
+    Serial.println();
+    */
+    
+}
+
 
 void updateGeneraion()
 {
-    updateIsland1();
+    Serial.print("generation ");
+    Serial.print(generation);
+    Serial.println(" has ended");
+    
+    Serial.println("print of each island before update");
+
+    Serial.println("Island1:");
+    for (int i = 0; i < island1Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island1[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island2:");
+    for (int i = 0; i < island2Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island2[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island3:");
+    for (int i = 0; i < island3Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island3[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island4:");
+    for (int i = 0; i < island4Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island4[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island Elite:");
+    for (int i = 0; i < islandEliteSize; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(islandElite[i].toString());
+    }
+    Serial.println();
+
+
+    childMutationsInCurrentGen = 0;
+    generalMutationsInCurrentGen = 0;
+
+    // update all five island
+
+    currentIslandID = ISLAND1_ID; // used for island origin in new population
+    updateIsland(island1, island1Size);
+
+    currentIslandID = ISLAND2_ID;
+    updateIsland(island2, island2Size);
+
+    currentIslandID = ISLAND3_ID;
+    updateIsland(island3, island3Size);
+
+    currentIslandID = ISLAND4_ID;
+    updateIsland(island4, island4Size);
+
+    currentIslandID = ISLANDELITE_ID;
+    updateIsland(islandElite, islandEliteSize);
+
+    
+    //Serial.println(childMutationsInCurrentGen);
+    //Serial.println(generalMutationsInCurrentGen);
+    
+
+    // do migration after all islands are updated
+    doMigration();
+
+    generation++;
+
+
+    Serial.println("print of each island after update");
+
+    Serial.println("Island1:");
+    for (int i = 0; i < island1Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island1[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island2:");
+    for (int i = 0; i < island2Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island2[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island3:");
+    for (int i = 0; i < island3Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island3[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island4:");
+    for (int i = 0; i < island4Size; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(island4[i].toString());
+    }
+    Serial.println();
+
+    Serial.println("Island Elite:");
+    for (int i = 0; i < islandEliteSize; i++)
+    {
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(islandElite[i].toString());
+    }
+    Serial.println();
 }

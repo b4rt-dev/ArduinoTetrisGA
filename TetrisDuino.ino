@@ -179,7 +179,7 @@ unsigned long randomSeedPiece = 0; // increases each shuffle by one
 #define BOARD_Y   128 -3 -MINO_SIZE
 
 unsigned long nextFrameStart = 0;
-int frameTime = 30;
+int frameTime = 0;
 
 bool gamePaused = false;
 
@@ -226,10 +226,10 @@ double wBumpiness     = -1.0;
 // GENETIC ALGORITHM
 ////////////////////////////////////
 // NOTE: these sizes must be dividable by 4
-#define ISLAND_SIZE_NORMAL    8
-#define ISLAND_SIZE_BIG       12
-#define ISLAND_SIZE_SMALL     4
-#define ISLAND_SIZE_ELITE     8
+#define ISLAND_SIZE_NORMAL    20
+#define ISLAND_SIZE_BIG       32
+#define ISLAND_SIZE_SMALL     12
+#define ISLAND_SIZE_ELITE     20
 
 #define ISLAND1_ID            1
 #define ISLAND2_ID            2
@@ -237,13 +237,16 @@ double wBumpiness     = -1.0;
 #define ISLAND4_ID            4
 #define ISLANDELITE_ID        5
 
-#define MUTATION_PROB_CHILD   0.15
-#define MUTATION_PROB_ANY     0.1
+#define MUTATION_PROB_CHILD   0.13
+#define MUTATION_PROB_ANY     0.06
 
 int generation = 0;
 
 int currentChromosomeID = 0;
 int currentIslandID = ISLAND1_ID;
+
+int childMutationsInCurrentGen = 0;
+int generalMutationsInCurrentGen = 0;
 
 // population
 typedef struct {
